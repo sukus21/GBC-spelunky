@@ -1,8 +1,10 @@
 # GBC-Spelunky
  An attempt to demake Spelunky 2 for GBC.
- This was a wildly ambitious project, and I only just managed to get a playable version ready, although I ended up having to convert it to an endless runner type game. 
+ This was a wildly ambitious project, and I only just managed to get a playable version ready, although I ended up having to convert it to an endless runner type game, and cut a ton of the planned content.
+ 
  You get 4 hearts, and from there you're on your own. Make it as far as you can into the game, collecting as much gold as possible. You get 1 minute and 30 seconds to complete each level, or your game will end. The game currently does not save your score, so if you want to keep track, you're gonna have to do that manually.
  I would say the code is pretty well documented.
+ 
  Do whatever you want with the code, just credit me (sukus) if you want to use any of it.
  
  Developed using Emulicious, hUGETracker and RGBDS.
