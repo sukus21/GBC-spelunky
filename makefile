@@ -52,6 +52,7 @@ $(BUILD_DIR)/obj/%.o : $(SRC_DIR)/%.asm | $(OBJ_DIRS)
 $(OBJ_DIRS):
 	mkdir -p $@
 
+#It's a cleanup function
 clean:
 	rm -rf $(BUILD_DIR)
 
