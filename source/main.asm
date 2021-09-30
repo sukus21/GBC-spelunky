@@ -147,8 +147,8 @@ main:
     call input
 
     ;Reset the entire thing maybe
-    bit PADB_START, c
-    jp nz, setup_newlevel
+    ;bit PADB_START, c
+    ;jp nz, setup_newlevel
 
     ;Player code
     call_bank_m0 player

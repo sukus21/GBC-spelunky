@@ -23,30 +23,30 @@ ROM0 bank #0:
            $00e5 = !0
   SECTION: $0100-$0103 ($0004 bytes) ["ENTRY POINT"]
   SECTION: $0104-$014f ($004c bytes) ["HEADER"]
-  SECTION: $0150-$01ef ($00a0 bytes) ["MAIN"]
+  SECTION: $0150-$01ea ($009b bytes) ["MAIN"]
            $0150 = start
            $0150 = main
            $0158 = !0
            $0191 = !1
            $01a5 = !2
            $01a8 = main.dma
-           $01d0 = gameover
-           $01dd = gameover.wait
-  SECTION: $01f0-$0246 ($0057 bytes) ["RNG ROUTINE"]
-           $01f0 = rng_run_single
-           $01f9 = rng_run
-           $020b = rng_tick
-           $021e = !0
-           $0220 = !1
-           $0221 = !2
-           $0224 = rngtest
-           $0236 = rngtest.loop
-           $0244 = rngtest.noloop
-  SECTION: $0247-$028d ($0047 bytes) ["MEMFUNC"]
-           $0247 = memcopy
-           $0250 = memfill
-           $0258 = palette_copy_bg
-           $0273 = palette_copy_spr
+           $01cb = gameover
+           $01d8 = gameover.wait
+  SECTION: $01eb-$0241 ($0057 bytes) ["RNG ROUTINE"]
+           $01eb = rng_run_single
+           $01f4 = rng_run
+           $0206 = rng_tick
+           $0219 = !0
+           $021b = !1
+           $021c = !2
+           $021f = rngtest
+           $0231 = rngtest.loop
+           $023f = rngtest.noloop
+  SECTION: $0242-$0288 ($0047 bytes) ["MEMFUNC"]
+           $0242 = memcopy
+           $024b = memfill
+           $0253 = palette_copy_bg
+           $026e = palette_copy_spr
   SECTION: $02a0-$0ce7 ($0a48 bytes) ["INTRO"]
            $02a0 = intro
            $031c = intro.fade
@@ -483,7 +483,7 @@ ROM0 bank #0:
            $2e64 = bank_return
            $2e6b = bank_return_d
            $2e73 = _hl_
-    SLACK: $11b6 bytes
+    SLACK: $11bb bytes
 
 ROMX bank #1:
   SECTION: $4000-$40a5 ($00a6 bytes) ["DEBUGGING"]
@@ -2258,7 +2258,7 @@ HRAM bank #0:
     SLACK: $0060 bytes
 
 USED:
-    ROM0: $2e4a bytes in 1 bank
+    ROM0: $2e45 bytes in 1 bank
     ROMX: $72ac bytes in 3 banks
     WRAM0: $04d0 bytes in 1 bank
     WRAMX: $3000 bytes in 3 banks
