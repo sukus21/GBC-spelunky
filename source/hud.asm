@@ -176,9 +176,13 @@ hud_init::
 ; Subroutine deserving of it's own label.
 ; Used with `hud_update`.
 hud_update_money_remaining:
+    
+    ;Deal with higher nybble
     and a, %11110000
     swap a
     ld [hl+], a
+
+    ;Deak with lower nybble
     ld a, c
     and a, %00001111
     .lower
@@ -273,36 +277,6 @@ hud_update::
     ld [hl+], a
     inc a
     ld [hl-], a
-
-    ;Update timer
-    ld hl, w_level_timer
-    ld e, l
-    dec [hl]
-    jr nz, :+
-        
-        ;Subtract a second
-        ld [hl], 60
-        inc l
-        ld a, [hl]
-        dec a
-        daa 
-        ld [hl], a
-        jr nz, :+
-            
-            ;Subtract a minute
-            ld [hl], $60
-            inc l
-            dec [hl]
-
-            ld a, [hl]
-            cp a, $FF
-            jr nz, :+
-
-                ;Timer has reached 0
-                ;Don't return, jump to gameover
-                pop af
-                jp gameover
-    :
     
     ;Show timer on screen
     ;Clock tile
@@ -346,7 +320,7 @@ hud_update::
     ;Return
     ret
 
-    ;Display player XY-coordinates
+    ;Display player XY-coordinates (debug, unused)
     ld bc, w_player_x
     ld hl, hud_pointer + 16
     ld a, [bc]
@@ -432,6 +406,43 @@ hud_money_add::
 
     ;Pop and return
     pop hl
+    ret 
+;
+
+; Update timer.
+hud_update_timer::
+    
+    ;Set up for a loop
+    ld hl, w_level_timer
+    ld e, l
+    dec [hl]
+    jr nz, :+
+        
+        ;Subtract a single second
+        ld [hl], 60
+        inc l
+        ld a, [hl]
+        dec a
+        daa 
+        ld [hl], a
+        jr nz, :+
+            
+            ;Subtract an entire minute
+            ld [hl], $60
+            inc l
+            dec [hl]
+
+            ld a, [hl]
+            cp a, $FF
+            jr nz, :+
+
+                ;Timer has reached 0
+                ;Don't return, jump to gameover
+                pop af
+                jp gameover
+    :
+
+    ;Return
     ret 
 ;
 

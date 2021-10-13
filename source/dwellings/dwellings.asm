@@ -80,9 +80,14 @@ dwellings_sprites:
     INCBIN "entities/treasure.tls"
     .end
 
-;Dwellings background color palette
-dwellings_palettes_start:
+;Dwellings background palettes
+dwellings_palettes_background:
+dwellings_palettes::
     INCBIN "dwellings/gfx/palettes.pal"
+
+;Dwellings sprite palettes
+dwellings_palettes_sprites:
+    INCBIN "player/roffy.pal"
 
 ;Dwellings entity initialization pointers
 dwellings_entities_ground::
@@ -134,16 +139,8 @@ dwellings_load::
     call memcopy
 
     ;Copy palettes
-    ld hl, dwellings_palettes_start
-    xor a
-    call palette_copy_bg
-    call palette_copy_bg
-    call palette_copy_bg
-    call palette_copy_bg
-    call palette_copy_bg
-    call palette_copy_bg
-    call palette_copy_bg
-    call palette_copy_bg
+    ld hl, dwellings_palettes_background
+    call palette_copy_all
 
     ;Return
     ret

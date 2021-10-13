@@ -33,18 +33,6 @@ player_init::
     dec a
     ld [w_player_y], a
 
-    ;Copy player palettes
-    xor a
-    ld hl, player_palette
-    call palette_copy_spr
-    call palette_copy_spr
-    call palette_copy_spr
-    call palette_copy_spr
-    call palette_copy_spr
-    call palette_copy_spr
-    call palette_copy_spr
-    call palette_copy_spr 
-
     ;Return
     ret
 ;

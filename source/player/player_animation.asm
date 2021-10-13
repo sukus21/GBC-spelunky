@@ -283,7 +283,3 @@ player_sprite_whip::
     INCBIN "player/whip.tls"
     .end::
 
-;Player palletes
-player_palette::
-    INCBIN "player/roffy.pal"
-

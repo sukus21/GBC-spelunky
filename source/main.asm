@@ -68,16 +68,17 @@ start::
 ;Endless loop, replace with game code
 main:
     
+    ;Wait for STAT interupt
     ld a, [rIE]
     and a, IEF_LCDC
     jr z, :+
     halt
     :
     
-    ;Cancel all interupts requests
+    ;Wait for Vblank
     halt
 
-    ;Shenanigans
+    ;Window shenanigans
     ld a, 7
     ldh [rWX], a
     xor a
@@ -130,6 +131,25 @@ main:
         jr .dma
     :
 
+    ;Update colors?
+    ldh a, [h_input_pressed]
+    bit PADB_SELECT, a
+    jr z, :+
+
+        ld hl, dwellings_palettes
+        ld a, [w_palette_used]
+        cpl 
+        ld [w_palette_used], a
+        inc a
+        jr z, @+5
+            ld hl, w_palette_buffer
+        ld a, [w_world_bank]
+        ldh [h_bank_number], a
+        ld [$2000], a
+        call palette_copy_all
+        jr .dma
+    :
+
     ;I have spre VRAM-time, update HUD
     call hud_update
 
@@ -163,13 +183,16 @@ main:
     ;Execute entity code
     call w_entsys_execute
 
+    ;Increment timer
+    call hud_update_timer
+
     ;Go back to the start
     jp main
 ;
 
 
 
-; Call this to end the game
+; Call this to end the game.
 gameover::
 
     ;Wait for Vblank
@@ -180,8 +203,30 @@ gameover::
     ldh [rIE], a
     halt 
 
+    ;Window shenanigans
+    ld a, 7
+    ldh [rWX], a
+    xor a
+    ldh [rWY], a
+
+    ;Disable sprites
+    ld hl, rLCDC
+    res 1, [hl]
+
     ;Update hud once
+    ld hl, w_level_timer
+    ld a, 1
+    ld [hl+], a
+    ld [hl+], a
+    ld [hl], 0
     call hud_update
+
+    ;Set all sound registers to 0 to hopefully mute sound?
+    ;maybe??? I hope??
+    ld hl, $FF10
+    ld b, $00
+    ld de, $0030
+    call memfill
 
     ;Wait for vblank again
     .wait

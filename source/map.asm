@@ -538,6 +538,20 @@ map_update_block::
     :
     pop hl
 
+    ;Should block update on screen?
+    xor a
+    ld a, h
+    and a, %00001111
+    ld e, l
+    rl e
+    rla 
+    rl e
+    rla 
+    ld d, a
+    ld a, [w_camera_y]
+    dec a
+    cp a, d
+    ret nc
     
     ;Get pointer to new data
     ld de, w_screen_update_list_head

@@ -178,6 +178,29 @@ setup_partial::
     ld hl, dwellings_bgm
     call hUGE_init
 
+    ;Update palette brightness
+    ld hl, w_palette_buffer
+    call palette_make_lighter
+    ld hl, w_palette_buffer
+    xor a
+    call palette_copy_bg
+    call palette_copy_bg
+    call palette_copy_bg
+    call palette_copy_bg
+    call palette_copy_bg
+    call palette_copy_bg
+    call palette_copy_bg
+    call palette_copy_bg
+    xor a
+    call palette_copy_spr
+    call palette_copy_spr
+    call palette_copy_spr
+    call palette_copy_spr
+    call palette_copy_spr
+    call palette_copy_spr
+    call palette_copy_spr
+    call palette_copy_spr
+
     ;Reenable LCD
     ld hl, rLCDC
     ld a, LCDCF_ON | LCDCF_BGON | LCDCF_WINON | LCDCF_WIN9C00 | LCDCF_OBJON | LCDCF_OBJ16 ;Additional flags here, enable what you need :)
@@ -224,7 +247,6 @@ setup_newlevel::
     ld a, bank_dwellings_main
     ld [$2000], a
     ldh [h_bank_number], a
-    call dwellings_load
 
     call hud_init
 
@@ -263,6 +285,7 @@ setup_newlevel::
     jr nz, .maptomem
 
     ;Increment level number
+    xor a ;Clears carry flag
     ld a, [w_level_number]
     inc a
     daa 
