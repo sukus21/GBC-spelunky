@@ -25,3 +25,5 @@ Up/down (while on ladder): Move
 A (while on ladder): Jump off
 
 Start (while standing on exit): Move on to next level
+
+Select: Toggle bright/original color palette
