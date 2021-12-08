@@ -4,7 +4,9 @@ ROM0 bank #0:
   SECTION: $0038-$003f ($0008 bytes) ["ERROR HANDLER"]
            $0038 = v_error
   SECTION: $0040-$0043 ($0004 bytes) ["VBLANK INTERRUPT"]
+           $0040 = v_vblank
   SECTION: $0048-$0062 ($001b bytes) ["STAT INTERRUPT"]
+           $0048 = v_stat
   SECTION: $0063-$00ed ($008b bytes) ["SPRITES"]
            $0063 = dma_routine
            $0069 = dma_routine.wait
@@ -22,29 +24,30 @@ ROM0 bank #0:
            $00e0 = sprite_free
            $00e5 = !0
   SECTION: $0100-$0103 ($0004 bytes) ["ENTRY POINT"]
+           $0100 = v_entry
   SECTION: $0104-$014f ($004c bytes) ["HEADER"]
-  SECTION: $0150-$0230 ($00e1 bytes) ["MAIN"]
+  SECTION: $0150-$0234 ($00e5 bytes) ["MAIN"]
            $0150 = start
            $0150 = main
            $0158 = !0
            $0191 = !1
            $01a5 = !2
            $01c8 = !3
-           $01cb = main.dma
-           $01f1 = gameover
-           $021e = gameover.wait
-  SECTION: $0231-$0287 ($0057 bytes) ["RNG ROUTINE"]
-           $0231 = rng_run_single
-           $023a = rng_run
-           $024c = rng_tick
-           $025f = !0
-           $0261 = !1
-           $0262 = !2
-           $0265 = rngtest
-           $0277 = rngtest.loop
-           $0285 = rngtest.noloop
-  SECTION: $02a0-$0ce7 ($0a48 bytes) ["INTRO"]
-           $02a0 = intro
+           $01cf = main.dma
+           $01f5 = gameover
+           $0222 = gameover.wait
+  SECTION: $0235-$028b ($0057 bytes) ["RNG ROUTINE"]
+           $0235 = rng_run_single
+           $023e = rng_run
+           $0250 = rng_tick
+           $0263 = !0
+           $0265 = !1
+           $0266 = !2
+           $0269 = rngtest
+           $027b = rngtest.loop
+           $0289 = rngtest.noloop
+  SECTION: $0297-$0ce7 ($0a51 bytes) ["INTRO"]
+           $0297 = intro
            $031c = intro.fade
            $0338 = intro.phase2
            $0347 = intro.fadeout
@@ -401,7 +404,7 @@ ROM0 bank #0:
            $29b6 = entsys_gravity.falling
            $29c1 = !48
            $29c2 = entsys_gravity.return
-  SECTION: $29c9-$2bf8 ($0230 bytes) ["level"]
+  SECTION: $29c9-$2bb2 ($01ea bytes) ["level"]
            $29c9 = level_path_create
            $2a10 = !0
            $2a1c = !1
@@ -441,105 +444,107 @@ ROM0 bank #0:
            $2b63 = !17
            $2b74 = map_update_block.update
            $2b79 = !18
-           $2ba7 = !19
-           $2bae = test
-  SECTION: $2bf9-$2d99 ($01a1 bytes) ["SETUP"]
-           $2bf9 = setup_complete
-           $2c08 = setup_complete.nocolor
-           $2c1f = setup_partial
-           $2c46 = setup_partial.rngskip
-           $2c5d = setup_partial.rngignore
-           $2c76 = !0
-           $2cb6 = setup_partial.maptomem
-           $2d1c = setup_newlevel
-           $2d65 = setup_newlevel.maptomem
-  SECTION: $2d9a-$2e8b ($00f2 bytes) ["CAMERA TEST"]
-           $2d9a = camera_handle
-           $2dc3 = !0
-           $2dcd = camera_handle.horizontal
-           $2de5 = !1
-           $2def = camera_handle.nocheck
-           $2e26 = !2
-           $2e2f = camera_handle.checky
-           $2e2f = !3
-           $2e39 = !4
-           $2e42 = camera_handle.checkd
-           $2e42 = !5
-           $2e43 = camera_set_position
-           $2e52 = !6
-           $2e5c = !7
-           $2e69 = camera_set_position.vertical
-           $2e69 = !8
-           $2e73 = !9
-           $2e80 = camera_set_position.store
-           $2e80 = !10
-  SECTION: $2e8c-$2f71 ($00e6 bytes) ["COPYDATA"]
-           $2e8c = memcopy
-           $2e95 = memfill
-           $2e9d = palette_copy_bg
-           $2eb8 = palette_copy_spr
-           $2ed3 = palette_copy_all
-           $2edb = palette_copy_all.bgcopy
-           $2ef6 = palette_copy_all.sprcopy
-           $2f0a = palette_make_lighter
-           $2f16 = palette_make_lighter.copybg
-           $2f26 = palette_make_lighter.copyobj
-           $2f31 = palette_make_lighter.modify
-           $2f40 = !0
-           $2f53 = !1
-           $2f65 = !2
-  SECTION: $2f72-$2fa5 ($0034 bytes) ["SNIPPETS"]
-           $2f72 = bank_call_0
-           $2f79 = bank_call_x
-           $2f87 = bank_call_xd
-           $2f96 = bank_return
-           $2f9d = bank_return_d
-           $2fa5 = _hl_
-    SLACK: $108a bytes
+           $2b8f = !19
+           $2bac = !20
+  SECTION: $2bb3-$2d58 ($01a6 bytes) ["SETUP"]
+           $2bb3 = setup_complete
+           $2bc2 = setup_complete.nocolor
+           $2bcd = !0
+           $2bd7 = setup_partial
+           $2bfe = setup_partial.rngskip
+           $2c15 = setup_partial.rngignore
+           $2c2e = !1
+           $2c6e = setup_partial.maptomem
+           $2cd4 = setup_newlevel
+           $2d1d = setup_newlevel.maptomem
+  SECTION: $2d59-$2e4a ($00f2 bytes) ["CAMERA TEST"]
+           $2d59 = camera_handle
+           $2d82 = !0
+           $2d8c = camera_handle.horizontal
+           $2da4 = !1
+           $2dae = camera_handle.nocheck
+           $2de5 = !2
+           $2dee = camera_handle.checky
+           $2dee = !3
+           $2df8 = !4
+           $2e01 = camera_handle.checkd
+           $2e01 = !5
+           $2e02 = camera_set_position
+           $2e11 = !6
+           $2e1b = !7
+           $2e28 = camera_set_position.vertical
+           $2e28 = !8
+           $2e32 = !9
+           $2e3f = camera_set_position.store
+           $2e3f = !10
+  SECTION: $2e4b-$2f30 ($00e6 bytes) ["COPYDATA"]
+           $2e4b = memcopy
+           $2e54 = memfill
+           $2e5c = palette_copy_bg
+           $2e77 = palette_copy_spr
+           $2e92 = palette_copy_all
+           $2e9a = palette_copy_all.bgcopy
+           $2eb5 = palette_copy_all.sprcopy
+           $2ec9 = palette_make_lighter
+           $2ed5 = palette_make_lighter.copybg
+           $2ee5 = palette_make_lighter.copyobj
+           $2ef0 = palette_make_lighter.modify
+           $2eff = !0
+           $2f12 = !1
+           $2f24 = !2
+  SECTION: $2f31-$2f64 ($0034 bytes) ["SNIPPETS"]
+           $2f31 = bank_call_0
+           $2f38 = bank_call_x
+           $2f46 = bank_call_xd
+           $2f55 = bank_return
+           $2f5c = bank_return_d
+           $2f64 = _hl_
+    SLACK: $10be bytes
 
 ROMX bank #1:
-  SECTION: $4000-$40a5 ($00a6 bytes) ["DEBUGGING"]
-           $4000 = debug_window_toggle
-           $400e = !0
-           $4012 = debug_window_run
-           $402a = debug_window_none
-           $4031 = debug_window_path
-           $4042 = debug_window_path.loop
-           $4053 = !1
-           $4059 = debug_window_coordinates
-  SECTION: $40eb-$597c ($1892 bytes) ["error"]
-           $40eb = errorhandler
-           $40fb = errorhandler.wait
-           $4101 = !0
-           $4163 = errorhandler.loop
-           $41a7 = error_wait
-           $41af = int_stat
-           $41ce = !1
-           $41d5 = !2
-           $41de = int_stat.loop
-           $41ee = !3
-           $4200 = zero
-           $4400 = grad
-           $4c00 = sine
-           $4e00 = error_tiles
-           $5680 = error_tiles_e
-           $5680 = error_sprites
-           $57a0 = error_sprites_e
-           $57a0 = error_map
-           $58a0 = error_spritedata
-           $58a0 = error_map_e
-           $5940 = error_palette_bg
-           $5948 = error_palette_obj
-           $5950 = error_entityoverflow
-           $5962 = error_vblank
-  SECTION: $597d-$6dcf ($1453 bytes) ["VARIABLE INITIALIZATION"]
-           $597d = variables_init
-           $59a6 = var_data_w0
-           $5db1 = var_data_w0_end
-           $5db1 = var_data_w3
-           $6db1 = var_data_h
-           $6dd0 = var_data_h_end
-    SLACK: $1275 bytes
+  SECTION: $4000-$589c ($189d bytes) ["ERROR"]
+           $4000 = zero
+           $4200 = grad
+           $4a00 = sine
+           $4c00 = error_tiles
+           $5480 = error_sprites
+           $5480 = error_tiles_e
+           $55a0 = error_map
+           $55a0 = error_sprites_e
+           $56a0 = error_spritedata
+           $56a0 = error_map_e
+           $5740 = error_palette_bg
+           $5748 = error_palette_obj
+           $5750 = errorhandler
+           $5760 = errorhandler.wait
+           $5766 = !0
+           $57c8 = errorhandler.loop
+           $580c = error_wait
+           $5814 = int_stat
+           $5833 = !1
+           $583a = !2
+           $5843 = int_stat.loop
+           $5853 = !3
+           $5865 = error_entityoverflow
+           $5877 = error_vblank
+           $5892 = error_dmg
+  SECTION: $589d-$6cef ($1453 bytes) ["VARIABLE INITIALIZATION"]
+           $589d = variables_init
+           $58c6 = var_data_w0
+           $5cd1 = var_data_w0_end
+           $5cd1 = var_data_w3
+           $6cd1 = var_data_h
+           $6cf0 = var_data_h_end
+  SECTION: $6cf0-$6d95 ($00a6 bytes) ["DEBUGGING"]
+           $6cf0 = debug_window_toggle
+           $6cfe = !0
+           $6d02 = debug_window_run
+           $6d1a = debug_window_none
+           $6d21 = debug_window_path
+           $6d32 = debug_window_path.loop
+           $6d43 = !1
+           $6d49 = debug_window_coordinates
+    SLACK: $126a bytes
 
 ROMX bank #2:
   SECTION: $4000-$4da7 ($0da8 bytes) ["DWELLINGS DATA"]
@@ -1002,20 +1007,23 @@ ROMX bank #3:
            $5738 = entity_corpse_execute.visible_regular
            $5783 = !1
            $5785 = !2
-  SECTION: $5792-$587b ($00ea bytes) ["PLAYER ANIMATION"]
+  SECTION: $5792-$58a2 ($0111 bytes) ["PLAYER ANIMATION"]
            $5792 = player_animate_walk
-           $57b9 = player_animate_idle
-           $57d2 = player_animate_jump
-           $57de = player_animate_jump.up
-           $57e6 = player_animate_jump.down
-           $57f3 = player_animate_jump.common
-           $57fd = player_animate_hang
-           $5812 = player_animate_ladder
-           $581f = !0
-           $5833 = !1
-           $583f = !2
-           $585a = player_animate_frame
-    SLACK: $2784 bytes
+           $57bc = player_animate_idle
+           $57d8 = player_animate_jump
+           $57e4 = player_animate_jump.up
+           $57ec = player_animate_jump.down
+           $57f9 = player_animate_jump.common
+           $5806 = player_animate_hang
+           $581e = player_animate_ladder
+           $582b = !0
+           $583f = !1
+           $584b = !2
+           $5869 = player_animate_frame
+           $588e = hdma_safetransfer
+           $588f = hdma_safetransfer.waitHblank
+           $5897 = hdma_safetransfer.waitNoblank
+    SLACK: $275d bytes
 
 WRAM0 bank #0:
   SECTION: $c000-$c40a ($040b bytes) ["WRAM0 VARIABLES"]
@@ -2273,8 +2281,8 @@ HRAM bank #0:
     SLACK: $0060 bytes
 
 USED:
-    ROM0: $2f76 bytes in 1 bank
-    ROMX: $72fb bytes in 3 banks
+    ROM0: $2f42 bytes in 1 bank
+    ROMX: $732d bytes in 3 banks
     WRAM0: $0551 bytes in 1 bank
     WRAMX: $3000 bytes in 3 banks
     HRAM: $001f bytes in 1 bank

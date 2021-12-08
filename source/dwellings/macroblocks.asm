@@ -458,6 +458,6 @@ dwellings_macroblock_door:
 ;Should not be called. If it is, something has gone wrong.
 dwellings_macroblock_invalid:
     
-    ;Trigger a debug and return
+    ;Return
     ;ld b, b
     ret 

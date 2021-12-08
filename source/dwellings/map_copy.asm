@@ -350,8 +350,8 @@ dwellings_map_update_list::
 ; Takes the finished path structure + info and creates a map from them.
 ;
 ; Input:
-; - w_chunk_type: Path structure in WRAM
-; - w_chunk_info: Path structure info
+; - `w_chunk_type`: Path structure in WRAM
+; - `w_chunk_info`: Path structure info
 ;
 ; Destroys: all
 dwellings_map_generate::

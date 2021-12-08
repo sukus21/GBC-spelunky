@@ -80,6 +80,13 @@ intro::
     ld hl, rLCDC
     ld a, LCDCF_ON | LCDCF_BGON
     ld [hl], a
+    
+    ;Wait for Vblank
+    xor a
+    ldh [rIF], a
+    ld a, IEF_VBLANK
+    ld [rIE], a
+    halt 
 
     ;Fade in
     .fade

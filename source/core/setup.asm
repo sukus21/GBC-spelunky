@@ -20,10 +20,11 @@ setup_complete::
     ldh [h_is_color], a
 
     ;DMG detected, jump to error handler
-    ld b, bank(errorhandler)
-    ld hl, errorhandler
     cp a, 0
-    call z, bank_call_0
+    jr nz, :+
+        ld hl, error_dmg
+        rst v_error
+    :
 
     ;Set setup variable to 0
     ld a, 1
@@ -312,6 +313,10 @@ setup_newlevel::
     ;Set layer bank variable
     ld a, bank(level_foreground)
     ld [w_layer_bank], a
+    xor a
+    ldh [rIF], a
+    xor a
+    ld [w_screen_update_enable], a
 
     jp start
 ;

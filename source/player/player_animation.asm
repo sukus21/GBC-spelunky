@@ -35,11 +35,11 @@ player_animate_walk::
     ld [hl+], a
     ld a, $80
     ld [hl+], a
-    xor a
-    ld [hl+], a
+    ld [hl], 0
 
     ;Start HDMA, copy 4 tiles
-    ld [hl], 3
+    ld a, 3
+    call hdma_safetransfer
 
     ;Cleanup and return
     pop hl
@@ -65,11 +65,11 @@ player_animate_idle::
     ld [hl+], a
     ld a, $80
     ld [hl+], a
-    xor a
-    ld [hl+], a
+    ld [hl], 0
 
     ;Start HDMA, copy 4 tiles
-    ld [hl], 3
+    ld a, 3
+    call hdma_safetransfer
 
     ;Cleanup and return
     pop hl
@@ -115,11 +115,11 @@ player_animate_jump::
     ;Set up the rest of the transfer
     ld a, $80
     ld [hl+], a
-    xor a
-    ld [hl+], a
+    ld [hl], 0
 
     ;Start HDMA, copy 4 tiles
-    ld [hl], 3
+    ld a, 3
+    call hdma_safetransfer
 
     ;Cleanup and return
     pop hl
@@ -142,11 +142,11 @@ player_animate_hang::
     ld [hl+], a
     ld a, $80
     ld [hl+], a
-    xor a
-    ld [hl+], a
+    ld [hl], 0
 
     ;Start HDMA, copy 4 tiles
-    ld [hl], 3
+    ld a, 3
+    call hdma_safetransfer
 
     ;Cleanup and return
     pop hl
@@ -213,11 +213,11 @@ player_animate_ladder::
     ld [hl+], a
     ld a, $80
     ld [hl+], a
-    xor a
-    ld [hl+], a
+    ld [hl], 0
 
     ;Start HDMA, copy 4 tiles
-    ld [hl], 3
+    ld a, 3
+    call hdma_safetransfer
 
     ;Return
     ret 
@@ -256,15 +256,49 @@ player_animate_frame::
     ld [hl+], a
     ld a, $80
     ld [hl+], a
-    xor a
-    ld [hl+], a
+    ld [hl], 0
 
     ;Start HDMA, copy 4 tiles
-    ld [hl], 3
+    ld a, 3
+    call hdma_safetransfer
 
     ;Cleanup and return
     pop hl
     pop af
+    ret 
+;
+
+
+
+; Safely initiate a hblank DMA transfer.
+; TO BE USED BY PLAYER SPRITE ONLY!!!
+;
+; Input:
+; - `a`: Value to start transfer
+hdma_safetransfer::
+    
+    ;Save this
+    push af
+
+    ;Wait for Hblank
+    .waitHblank
+    ldh a, [rSTAT]
+    and a, %00000011
+    cp a, $00
+    jr nz, .waitHblank
+
+    ;Now wait to leave Hblank
+    .waitNoblank
+    ldh a, [rSTAT]
+    and a, %00000011
+    cp a, $00
+    jr z, .waitNoblank
+
+    ;Initiate transfer
+    pop af
+    ldh [rHDMA5], a
+
+    ;Return
     ret 
 ;
 

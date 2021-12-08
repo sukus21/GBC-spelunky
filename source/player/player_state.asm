@@ -28,7 +28,7 @@ player_states::
     cp a, pstate_stun
     jp z, statecode_stunned
 
-    ;State doesn't match anything, breakpoint
+    ;State doesn't match anything, trigger breakpoint
     ld b, b
     ret 
 ;

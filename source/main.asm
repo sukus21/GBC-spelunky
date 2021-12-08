@@ -15,13 +15,15 @@ SECTION "ERROR HANDLER", ROM0[$0038]
 SECTION "VBLANK INTERRUPT", ROM0[$0040]
     
     ;No
+    v_vblank::
     ld hl, error_vblank
     rst v_error 
 ;
 
 SECTION "STAT INTERRUPT", ROM0[$0048]
-
+    
     ;Disable interupts and push everything
+    v_stat::
     di 
     push af
     push bc
@@ -38,7 +40,7 @@ SECTION "STAT INTERRUPT", ROM0[$0048]
     ld a, LCDCF_ON | LCDCF_BGON | LCDCF_WINON | LCDCF_WIN9C00 | LCDCF_OBJON | LCDCF_OBJ16
     ldh [rLCDC], a
 
-    ;Do sound
+    ;Do music
     call _hUGE_dosound
 
     ;Pop everything and return
@@ -54,6 +56,7 @@ SECTION "STAT INTERRUPT", ROM0[$0048]
 SECTION "ENTRY POINT", ROM0[$0100]
     
     ;Disable interupts and jump
+    v_entry::
     di
     jp setup_complete
 ;
@@ -150,8 +153,10 @@ main:
         jr .dma
     :
 
-    ;I have spre VRAM-time, update HUD
-    call hud_update
+    ;I have spare VRAM-time, update HUD
+    ldh a, [rLY]
+    cp a, $90
+    call nc, hud_update
 
     ;Run sprite DMA
     .dma

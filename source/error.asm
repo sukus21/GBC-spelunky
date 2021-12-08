@@ -2,7 +2,77 @@ INCLUDE "hardware.inc"
 INCLUDE "banks.inc"
 INCLUDE "color.inc"
 
-SECTION FRAGMENT "error", ROMX, BANK[bank_errorhandler]
+SECTION "ERROR", ROMX, BANK[bank_errorhandler], ALIGN[8]
+
+;Just a bunch of 0's
+zero:
+    REPT 512
+    db 0
+    ENDR
+
+;Gradual sine curve
+grad:
+ANGLE = 0.0
+MULTR = 0.0
+    REPT 2048
+ANGLE = ANGLE + 256.0
+MULTR = MULTR + DIV(32.0, 2048.0)
+    db MUL(MULTR, SIN(ANGLE)) >> 16
+    ENDR
+
+;Regular sine curve
+sine:
+ANGLE = 0.0
+    REPT 512
+    db MUL(32.0, SIN(ANGLE)) >> 16
+ANGLE = ANGLE + 256.0
+    ENDR
+
+;Error screen background tileset
+error_tiles:
+    ;INCBIN "error/tilesEXT.bin"
+    INCBIN "errorhandler/petiles.bin"
+error_tiles_e:
+
+;Erro screen sprite tiles
+error_sprites:
+    INCBIN "errorhandler/sprites.bin"
+error_sprites_e:
+
+;Error screen map data
+error_map:
+    ;INCBIN "error/mapEXT.bin"
+    INCBIN "errorhandler/pemap.bin"
+error_map_e:
+
+;Error screen sprite data
+error_spritedata:
+    INCBIN "errorhandler/initsprites.bin"
+
+;Error screen background palette
+error_palette_bg:
+    color_dmg_blk
+    color_dmg_wht
+    color_dmg_dkg
+    color_dmg_blk
+
+;Error screen sprite palette
+error_palette_obj:
+    color_dmg_wht
+    color_dmg_ltg
+    color_dmg_wht
+    color_dmg_blk
+;
+
+
+; Error "handler".
+; Jumped to whenever something goes wrong.
+; Doesn't really handle anything, but displays a funny meme on the screen.
+; 
+; Input: 
+; - `hl`: Pointer to error string
+;
+; Destroys: It doesn't matter.
 errorhandler::
     
     ;Trigger a breakpoint in the emulator
@@ -256,69 +326,6 @@ int_stat:
     jp error_wait
 ;
 
-
-
-SECTION FRAGMENT "error", ROMX, ALIGN[8], BANK[bank_errorhandler]
-
-;Just a bunch of 0's
-zero:
-    REPT 512
-    db 0
-    ENDR
-
-;Gradual sine curve
-grad:
-ANGLE = 0.0
-MULTR = 0.0
-    REPT 2048
-ANGLE = ANGLE + 256.0
-MULTR = MULTR + DIV(32.0, 2048.0)
-    db MUL(MULTR, SIN(ANGLE)) >> 16
-    ENDR
-
-;Regular sine curve
-sine:
-ANGLE = 0.0
-    REPT 512
-    db MUL(32.0, SIN(ANGLE)) >> 16
-ANGLE = ANGLE + 256.0
-    ENDR
-
-;Error screen background tileset
-error_tiles:
-    ;INCBIN "error/tilesEXT.bin"
-    INCBIN "errorhandler/petiles.bin"
-error_tiles_e:
-
-;Erro screen sprite tiles
-error_sprites:
-    INCBIN "errorhandler/sprites.bin"
-error_sprites_e:
-
-;Error screen map data
-error_map:
-    ;INCBIN "error/mapEXT.bin"
-    INCBIN "errorhandler/pemap.bin"
-error_map_e:
-
-;Error screen sprite data
-error_spritedata:
-    INCBIN "errorhandler/initsprites.bin"
-
-;Error screen background palette
-error_palette_bg:
-    color_dmg_blk
-    color_dmg_wht
-    color_dmg_dkg
-    color_dmg_blk
-
-;Error screen sprite palette
-error_palette_obj:
-    color_dmg_wht
-    color_dmg_ltg
-    color_dmg_wht
-    color_dmg_blk
-
 ;No free entity to allocate
 error_entityoverflow:: 
 db $00, $FF, "ENTITY OVERFLOW", $00
@@ -326,3 +333,7 @@ db $00, $FF, "ENTITY OVERFLOW", $00
 ;Vblank interupt was called
 error_vblank::
 db $00, $FF, "VBLANK INTERRUPT ENTERED", $00
+
+;Console is in DMG mode
+error_dmg::
+db $00, $FF, "CGB ONLY", $00

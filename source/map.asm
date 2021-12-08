@@ -550,6 +550,10 @@ map_update_block::
     ld d, a
     ld a, [w_camera_y]
     dec a
+    cp a, $E8
+    jr c, :+
+        xor a
+    :
     cp a, d
     ret nc
     
@@ -599,11 +603,11 @@ map_update_block::
 ; Converts an entity's XXYY coordinates into XY screen coordinates
 ;
 ; Input:
-; - `bc` = Entity pointer
+; - `bc`: Entity pointer
 ;
 ; Output:
-; - `hl` = Entity pointer + 4
-; - `de` = sprite X/Y
+; - `hl`: Entity pointer + 4
+; - `de`: sprite X/Y
 worldspace_to_screenspace: MACRO 
     
 
@@ -672,31 +676,3 @@ worldspace_to_screenspace: MACRO
     ldh a, [h_temp]     ;12
     ld d, a             ;4
 ENDM
-
-test:
-    ;iBC = Pointer to entity data
-
-    worldspace_to_screenspace
-
-    ;6
-    ;Grab sprite slots
-    ld a, [hl]          ;8
-    rlca                ;4
-    rlca                ;4
-    ld h, high(w_oam_mirror) ;8
-    ld l, a             ;4
-
-    ;16
-    ;Write sprite data
-    ld a, e             ;4
-    ld [hl+], a         ;8
-    ld a, d             ;4
-    ld [hl+], a         ;8
-    inc l               ;4
-    inc l               ;4
-    ld a, e             ;4
-    ld [hl+], a         ;8
-    ld a, d             ;4
-    add a, 8            ;8
-    ld [hl], a          ;8
-;
