@@ -5,8 +5,6 @@
  You get 4 hearts, and from there you're on your own. Make it as far as you can into the game, collecting as much gold as possible. You get 1 minute and 30 seconds to complete each level, or your game will end. The game currently does not save your score, so if you want to keep track, you're gonna have to do that manually.
  I would say the code is pretty well documented.
  
- Do whatever you want with the code, just credit me (sukus) if you want to use any of it.
- 
  Developed using Emulicious, hUGETracker and RGBDS.
 
 # Controls
@@ -25,3 +23,5 @@ Up/down (while on ladder): Move
 A (while on ladder): Jump off
 
 Start (while standing on exit): Move on to next level
+
+Select: Toggle bright/original color palette
