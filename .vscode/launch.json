@@ -10,7 +10,8 @@
             "name": "Launch in Emulicious",
             "program": "${workspaceFolder}/build/build.gb",
             "port": 58870,
-            "stopOnEntry": false
+            "stopOnEntry": false,
+            "preLaunchTask": "build"
         }
     ]
 }

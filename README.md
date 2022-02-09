@@ -9,23 +9,23 @@
  - BGB
  - Emulicious
  - hUGETracker
- - RGBDS
+ - RGBDS toolchain
 
-# Controls
-Left/right: Move
+## Controls
+ Left/right: Move
 
-A: Jump
+ A: Jump
 
-B: Whip
+ B: Whip
 
-Down+A: Drop through platforms
+ Down+A: Drop through platforms
 
-Up: Jump onto ladder
+ Up: Jump onto ladder
 
-Up/down (while on ladder): Move
+ Up/down (while on ladder): Move
 
-A (while on ladder): Jump off
+ A (while on ladder): Jump off
 
-Start (while standing on exit): Move on to next level
+ Start (while standing on exit): Move on to next level
 
-Select: Toggle bright/original color palette
+ Select: Toggle color palette

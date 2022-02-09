@@ -10,32 +10,38 @@
             "problemMatcher": [],
             "presentation": {
                 "clear": true,
-                "panel": "dedicated",
+                "panel": "shared",
                 "reveal": "never"
-            },
+            }
         },
         {
             "label": "run clean",
             "dependsOrder": "sequence",
-            "dependsOn": ["clean", "build", "run"],
+            "dependsOn": [
+                "clean",
+                "build",
+                "run"
+            ],
             "problemMatcher": [],
             "presentation": {
                 "clear": true,
-                "panel": "dedicated",
+                "panel": "shared",
                 "reveal": "never"
-            },
+            }
         },
         {
             "label": "run",
             "type": "shell",
             "command": "build/build.gb",
-            "dependsOn": ["build"],
+            "dependsOn": [
+                "build"
+            ],
             "problemMatcher": [],
             "presentation": {
                 "clear": true,
-                "panel": "dedicated",
+                "panel": "shared",
                 "reveal": "never"
-            },
+            }
         },
         {
             "label": "build",
@@ -43,11 +49,27 @@
             "command": "make",
             "presentation": {
                 "clear": true,
-                "panel": "dedicated"
+                "panel": "shared"
             },
             "problemMatcher": [
-              "$rgbdserror",
-              "$rgbdslinkerror"
+                "$rgbdserror",
+                "$rgbdslinkerror"
+            ]
+        },
+        {
+            "label": "build clean",
+            "type": "shell",
+            "command": "make",
+            "dependsOn": [
+                "clean"
+            ],
+            "presentation": {
+                "clear": true,
+                "panel": "shared"
+            },
+            "problemMatcher": [
+                "$rgbdserror",
+                "$rgbdslinkerror"
             ]
         },
         {
@@ -56,24 +78,11 @@
             "command": "make clean",
             "presentation": {
                 "clear": true,
-                "panel": "dedicated"
+                "panel": "shared"
             },
             "problemMatcher": [
-              "$rgbdserror",
-              "$rgbdslinkerror"
-            ]
-        },
-        {
-            "label": "Launch Emulicious",
-            "type": "shell",
-            "command": "../../emulicious/Emulicious.exe",
-            "presentation": {
-                "clear": false,
-                "panel": "dedicated"
-            },
-            "problemMatcher": [
-              "$rgbdserror",
-              "$rgbdslinkerror"
+                "$rgbdserror",
+                "$rgbdslinkerror"
             ]
         }
     ]
