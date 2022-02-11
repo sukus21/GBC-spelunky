@@ -120,342 +120,277 @@ entity_caveman_execute::
     cp a, gstate_tumble
     jr z, :+
         call entsys_physics
-        rra ;Clear fz
+        rra ;Clear Z flag
     :
     call z, entsys_physics_tumble
 
-    ;Check animation flag
+    ;Check visibility flag
     ld a, l
     and a, %11000000
     or a, entity_visible
     ld l, a
-    ld a, [hl]
-    sra a
-    res 5, a
+    xor a
     cp a, [hl]
-    ld [hl], a
 
-    ;Flags are not the same
-    ;Appear or disappear
-    jr z, .visible_regular
-
-        ;Visible flag changed
-        or a, a ;Sets Z flag if A is 0
-        jr z, .invisible
-
-            ;Entity should appear on screen
-            ;Allocate sprites
-            ld a, 2
-            call sprite_alloc_multi
-            inc l
-            ld [hl-], a
-
-            ld e, a
-            ld d, high(w_oam_mirror)
-            inc e
-            inc e
-            ld a, s_caveman_idle
-            ld [de], a
-            inc e
-            ld a, OAMF_PAL1 | 2
-            ld [de], a
-            inc e
-            inc e
-            inc e
-            ld a, s_caveman_idle+2
-            ld [de], a
-            inc e
-            ld a, OAMF_PAL1 | 2
-            ld [de], a
-
-            ;Jump
-            jr .visible_regular
-
-        .invisible
-
-            ;Entity should disappear
-            ;Free allocated sprite
-            inc l
-            ld a, [hl]
-            ld b, 2
-            call sprite_free
-
-            ;Write invalid sprite
-            ;Remove for optimization
-            ld a, $A0
-            ld [hl-], a
-            ;Falls into label `.visible_regular`
-    ;
-
-    ;Is visible flag set? ;HL = `entity_visible`
-    .visible_regular
-    bit entsys_visible_currentB, [hl]
+    ;Return if invisible
     ret z
 
-        ;A little bit of behaviour culling
-        ;Check player in front, agro activation
-            
-            ;Move pointer to state
-            ld a, l
-            ld e, l
-            sub a, entity_visible - entity_state
-            ld l, a
-            ld a, [hl+]
 
-            ;Check if I'm in a valid state
-            cp a, caveman_state_idle
-            jr z, .goodstate
-            cp a, caveman_state_walk
-            jr z, .goodstate
+    ;A little bit of behaviour culling
+    ;Check player in front, agro activation
 
-            ;Bad state
-            jr .badstate
-
-            .goodstate
-            ;Some good register shuffling
-            ld a, l
-            ld l, e
-            push hl
-            ld l, a
-
-            ;Load positions
-            ld a, [hl+]
-            ld b, a
-            ld a, [hl+]
-            ld c, a
-            ld a, [hl+]
-            ld d, a
-            ld a, [hl+]
-            add a, $20
-            ld e, a
-
-            ;Offset X-position maybe
-            bit physics_going_left, [hl]
-            jr z, :+
-
-                ld a, b
-                sub a, 4
-                ld b, a
-            :
-
-            ;Write these to rectangle buffer
-            ld hl, w_collision_buffer
-            ld a, b
-            ld [hl+], a
-            ld a, c
-            ld [hl+], a
-            ld a, d
-            ld [hl+], a
-            ld a, e
-            ld [hl+], a
-
-            ;Add offsets
-            ld a, c
-            add a, caveman_width
-            ld c, a
-            ld a, b
-            adc a, 4
-            ld b, a
-            ld a, e
-            add a, caveman_height - $20 - $10
-            ld e, a
-            jr nc, :+
-            inc d
-            :
-
-            ;Write more stuff
-            ld a, b
-            ld [hl+], a
-            ld a, c
-            ld [hl+], a
-            ld a, d
-            ld [hl+], a
-            ld a, e
-            ld [hl+], a
-
-            ;Check collision
-            ld bc, w_collision_buffer
-            call entsys_collision_RP
-            pop hl
-            ld e, l
-            jr z, :+
-
-                ;Collision was found! Enter agro state
-                ld a, l
-                sub a, entity_visible - entity_state
-                ld l, a
-                ld [hl], caveman_state_angry
-                add a, entity_hspp - entity_state
-                ld l, a
-                ld [hl], caveman_runspeed
-            :
-
-        .badstate
-        ;Restore pointer
-        ld l, e
-
-
-        ;Entity is visible, show that sprite!
-        ;Grab sprite ID
-        inc l
-        ld d, [hl]
-        inc l
-        inc l
-        ld b, [hl]
-
-        ;Get entity position
+        ;Move pointer to state
+        ld b, b
         ld a, l
-        sub a, entity_timer - entity_state
-        ld l, a
-        ld c, [hl]
-        inc l
-        push bc
-
-        ;Convert X-position
-        ldh a, [h_scx]
-        ld e, a
-        ld a, [hl+]
-        and a, %00001111
-        ld b, a
-        ld a, [hl+]
-        and a, %11110000
-        or a, b
-        swap a
-        sub a, e
-        add a, 5
-        ld b, a
-
-        ;Convert Y-position
-        ldh a, [h_scy]
-        ld e, a
-        ld a, [hl+]
-        and a, %00001111
-        ld c, a
-        ld a, [hl+]
-        and a, %11110000
-        or a, c
-        swap a
-        sub a, e
-        add a, 11
-        ld c, a
-
-        ;Get direction and speed
-        ld e, [hl] ;Direction
-        ld a, l
-        sub a, entity_direction - entity_state
+        sub a, entity_visible - entity_state
         ld l, a
         ld a, [hl]
 
-        ;Is entity in tumble state?
-        cp a, gstate_tumble
-        jr nz, .noshake
-            
-            ;Yea, check timer
-            ld a, l
-            add a, entity_timer - entity_state
-            ld l, a
-            ld a, [hl]
-            cp a, $40
-            jr nc, .noshake_sub
+        ;Check if I'm in a valid state
+        cp a, caveman_state_idle
+        jr z, .goodstate
+        cp a, caveman_state_walk
+        jr z, .goodstate
 
-                ;Shake a little
-                bit 2, a
-                jr z, :+
-                    dec b
-                    jr .noshake_sub
-                :
-                    inc b
-                    ;Falls into label `.noshake_sub`
+        ;Bad state
+        jr .badstate
 
-            ;Move HL back in place
-            .noshake_sub
-            ld a, l
-            sub a, entity_timer - entity_state
-            ld l, a
+        .goodstate
+        push hl
+        inc l
 
-        .noshake
-        
-        ;Get grounded variable
-        add a, entity_grounded - entity_state
-        ld l, a
-        ld a, [hl] ;Grounded
-
-        ;Write sprite positions
-        ld l, d
+        ;Load positions
+        ld a, [hl+]
+        ld b, a
+        ld a, [hl+]
+        ld c, a
+        ld a, [hl+]
         ld d, a
-        ld a, c
-        ld h, high(w_oam_mirror)
-        ld [hl+], a
+        ld a, [hl+]
+        add a, $20
+        ld e, a
+
+        ;Offset X-position maybe
+        bit physics_going_left, [hl]
+        jr z, :+
+
+            ld a, b
+            sub a, 4
+            ld b, a
+        :
+
+        ;Write these to rectangle buffer
+        ld hl, w_collision_buffer
         ld a, b
         ld [hl+], a
-        add a, 8
-        inc l
-        inc l
-        ld [hl], c
-        inc l
+        ld a, c
+        ld [hl+], a
+        ld a, d
+        ld [hl+], a
+        ld a, e
         ld [hl+], a
 
-        ;Write sprite data
-        pop bc
+        ;Add offsets
         ld a, c
-        cp a, gstate_tumble
-        jr nz, .notumble
-
-            ;Tumble state
-            ld a, d
-            ld d, s_caveman_dead
-            cp a, 0
-            jr nz, .spriteplace
-            ld d, s_caveman_tumble
-            jr .spriteplace
-
-        
-        .notumble
-        ld d, s_caveman_idle
-        cp a, caveman_state_idle
-        jr z, .spriteplace
-
-            ;Walking sprite
-            ld a, b
-            cpl 
-            and a, %00001100
-            add a, s_caveman_walk
-            ld d, a
-            jr .spriteplace
-
-        .spriteplace
-        ld b, 2 + OAMF_XFLIP + OAMF_PAL1
-        bit physics_going_left, e
-        jr nz, :+
-
-            ;Player is facing right
-            inc d
-            inc d
-            res OAMB_XFLIP, b
+        add a, caveman_width
+        ld c, a
+        ld a, b
+        adc a, 4
+        ld b, a
+        ld a, e
+        add a, caveman_height - $20 - $10
+        ld e, a
+        jr nc, :+
+        inc d
         :
 
-        ;Load the data
-        ld [hl], d
-        inc l
-        ld [hl], b
+        ;Write more stuff
+        ld a, b
+        ld [hl+], a
+        ld a, c
+        ld [hl+], a
+        ld a, d
+        ld [hl+], a
+        ld a, e
+        ld [hl+], a
+
+        ;Check collision
+        ld bc, w_collision_buffer
+        call entsys_collision_RP
+        pop hl
+        jr z, :+
+
+            ;Collision was found! Enter agro state
+            ld [hl], caveman_state_angry
+            ld a, l
+            add a, entity_hspp - entity_state
+            ld l, a
+            ld [hl], caveman_runspeed
+        :
+
+    .badstate
+    
+    ;Get sprite address in BC
+    ld b, 2 * 4
+    call sprite_get
+    ld d, a
+
+    ;Push state through C, timer through B
+    ld a, l
+    and a, %11000000
+    or a, entity_timer
+    ld l, a
+    ld b, [hl]
+    sub a, entity_timer - entity_state
+    ld l, a
+    ld c, [hl]
+    inc l
+    push bc
+
+    ;Convert X-position
+    ldh a, [h_scx]
+    ld e, a
+    ld a, [hl+]
+    and a, %00001111
+    ld b, a
+    ld a, [hl+]
+    and a, %11110000
+    or a, b
+    swap a
+    sub a, e
+    add a, 5
+    ld b, a
+
+    ;Convert Y-position
+    ldh a, [h_scy]
+    ld e, a
+    ld a, [hl+]
+    and a, %00001111
+    ld c, a
+    ld a, [hl+]
+    and a, %11110000
+    or a, c
+    swap a
+    sub a, e
+    add a, 11
+    ld c, a
+
+    ;Get direction and speed
+    ld e, [hl] ;Direction
+    ld a, l
+    sub a, entity_direction - entity_state
+    ld l, a
+    ld a, [hl]
+
+    ;Is entity in tumble state?
+    cp a, gstate_tumble
+    jr nz, .noshake
+        
+        ;Yea, check timer
         ld a, l
-        sub a, 5
+        add a, entity_timer - entity_state
+        ld l, a
+        ld a, [hl]
+        cp a, $40
+        jr nc, .noshake_sub
+
+            ;Shake a little
+            bit 2, a
+            jr z, :+
+                dec b
+                jr .noshake_sub
+            :
+                inc b
+                ;Falls into label `.noshake_sub`
+
+        ;Move HL back in place
+        .noshake_sub
+        ld a, l
+        sub a, entity_timer - entity_state
         ld l, a
 
-        dec d
-        dec d
-        bit physics_going_left, e
-        jr z, :+
-            inc d
-            inc d
-            inc d
-            inc d
-        :
+    .noshake
+    
+    ;Get grounded variable
+    add a, entity_grounded - entity_state
+    ld l, a
+    ld a, [hl] ;Grounded
 
-        ld [hl], d
-        inc l
-        ld [hl], b
+    ;Write sprite positions
+    ld l, d
+    ld d, a
+    ld a, c
+    ld h, high(w_oam_mirror)
+    ld [hl+], a
+    ld a, b
+    ld [hl+], a
+    add a, 8
+    inc l
+    inc l
+    ld [hl], c
+    inc l
+    ld [hl+], a
 
+    ;Write sprite data
+    pop bc
+    ld a, c
+    cp a, gstate_tumble
+    jr nz, .notumble
+
+        ;Tumble state
+        ld a, d
+        ld d, s_caveman_dead
+        cp a, 0
+        jr nz, .spriteplace
+        ld d, s_caveman_tumble
+        jr .spriteplace
+
+    
+    .notumble
+    ld d, s_caveman_idle
+    cp a, caveman_state_idle
+    jr z, .spriteplace
+
+        ;Walking sprite
+        ld a, b
+        cpl 
+        and a, %00001100
+        add a, s_caveman_walk
+        ld d, a
+        jr .spriteplace
+
+    .spriteplace
+    ld b, 2 + OAMF_XFLIP + OAMF_PAL1
+    bit physics_going_left, e
+    jr nz, :+
+
+        ;Player is facing right
+        inc d
+        inc d
+        res OAMB_XFLIP, b
+    :
+
+    ;Load the data
+    ld [hl], d
+    inc l
+    ld [hl], b
+    ld a, l
+    sub a, 5
+    ld l, a
+
+    dec d
+    dec d
+    bit physics_going_left, e
+    jr z, :+
+        inc d
+        inc d
+        inc d
+        inc d
+    :
+
+    ld [hl], d
+    inc l
+    ld [hl], b
 
     ;Return
     ret

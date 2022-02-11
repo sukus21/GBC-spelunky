@@ -15,11 +15,6 @@ SECTION "PLAYER", ROMX, BANK[bank_player]
 ; Assumes entrance variables are set correctly.
 player_init::
     
-    ;Allocate sprites
-    ld a, 4
-    call sprite_alloc_multi
-    ld [w_player_sprite], a
-
     ;Load in whip tiles
     ld hl, $8040
     ld bc, player_sprite_whip
@@ -39,7 +34,6 @@ player_init::
 
 
 
-; Test for a platformer engine
 ; Main player platforming system.
 ; 
 ; Destroys: all(probably)
@@ -646,40 +640,10 @@ player_main::
         ;Is player invincible?
         ld l, low(w_player_invincible)
         bit 2, [hl]
-        jr z, .spritenormal
-
-            ;Make sprite go away
-            ld l, low(w_player_sprite)
-            ld l, [hl]
-            ld h, high(w_oam_mirror)
-            xor a
-            ld b, OAMF_PAL1
-            ld [hl+], a
-            ld [hl+], a
-            ld [hl+], a
-            ld [hl], b
-            inc l
-            ld [hl+], a
-            ld [hl+], a
-            ld [hl+], a
-            ld [hl], b
-            inc l
-            ld [hl+], a
-            ld [hl+], a
-            ld [hl+], a
-            ld [hl], b
-            inc l
-            ld [hl+], a
-            ld [hl+], a
-            ld [hl+], a
-            ld [hl], b
-            inc l
-            jp .sprite_post
+        jp nz, .sprite_post
     
         ;Convert from worldspace to screenspace
-        .spritenormal
         ld l, low(w_player_x)
-
         ldh a, [h_scx]
         ld b, a
         ld a, [hl+]
@@ -706,10 +670,14 @@ player_main::
         add a, $08 + $03
         ld d, a
 
-        ;Update sprite
-        ld a, [w_player_sprite]
+        ;Get sprite ID
+        ld l, b
+        ld b, 2 * 4
+        call sprite_get
+        ld b, l
         ld l, a
         ld h, high(w_oam_mirror)
+
         ld [hl], d
         inc l
         ld [hl], e
@@ -723,13 +691,13 @@ player_main::
             ;Flip sprite
             ld a, 2
             ld [hl+], a
-            set OAMB_XFLIP, [hl]
+            ld [hl], OAMF_XFLIP | p_player
             jr .sprite2
         :
             ;Don't flip sprite
             xor a
             ld [hl+], a
-            res OAMB_XFLIP, [hl]
+            ld [hl], p_player
 
         .sprite2
         inc l
@@ -748,19 +716,19 @@ player_main::
             ;Flip sprite
             xor a
             ld [hl+], a
-            set OAMB_XFLIP, [hl]
+            ld [hl], OAMF_XFLIP | p_player
             jr :++
         :
             ;Don't flip sprite
             ld a, 2
             ld [hl+], a
-            res OAMB_XFLIP, [hl]
+            ld [hl], p_player
         :
 
         ;Display whip
         ld a, [w_player_state]
         cp a, pstate_whip
-        jr nz, .whip_remove
+        jr nz, .not_whipping
 
             ;Get sprite 1 screen coordinates
             dec l
@@ -788,7 +756,7 @@ player_main::
                     ld c, $04
                 :
                 ld d, a
-                ld b, player_palette_whip + OAMF_XFLIP + OAMF_PAL1
+                ld b, player_palette_whip + OAMF_XFLIP
                 jr .placewhip
             
             .whipright
@@ -804,21 +772,24 @@ player_main::
                     ld c, $06
                 :
                 ld d, a
-                ld b, player_palette_whip + OAMF_PAL1
+                ld b, player_palette_whip
                 ;Falls into label `.placewhip`
 
             .placewhip
-            ;Move sprite pointer
-            inc l
-            inc l
+
+            ld l, b
+            ld b, 2 * 4
+            call sprite_get
+            ld b, l
+            ld l, a
             
             ;Whip sprite 0
             ld a, e
             ld [hl+], a
             ld a, d
             ld [hl+], a
-            ld [hl], c
-            inc l
+            ld a, c
+            ld [hl+], a
             ld [hl], b
 
             ;Move pointer and write to whip sprite 1
@@ -843,7 +814,7 @@ player_main::
             ld [hl], b
             jr .sprite_post
             
-        .whip_remove
+        .not_whipping
 
             ;Is player standing on top of a door?
             ld de, w_player_x+1
@@ -863,46 +834,49 @@ player_main::
             ld a, [de]
             cp a, b_door_middle_exit
             jr nz, .nodoor
+            
+                ;There is a door here!
+                ;Grab player sprite coordinates
+                ld a, l
+                sub a, 7
+                ld l, a
+                ld a, [hl+]
+                sub a, 19
+                ld c, a ;Y pos -> c
+                ld d, [hl] ;X pos -> d
 
+                ;Tick this
                 ld hl, w_player_tick
                 inc [hl]
                 ld e, [hl]
-            
-                ;There is a door here!
-                ;Make the sprite thingy appear
-                ;Grab player X/Y
-                ld hl, w_oam_mirror
-                ld a, [hl+]
-                sub a, 19
-                ld b, [hl]
-                ld c, a
+
+                ;Get new sprite
+                ld b, 2 * 4
+                call sprite_get
+                ld l, a
+                ld h, high(w_oam_mirror)
 
                 ;Write those coordinates to the helper sprites :)
                 ;Place sprite 1
-                ld l, low(w_oam_mirror + 8)
                 ld [hl], c ;Sprite 1 Y
                 inc l
-                ld [hl], b ;Sprite 1 X
+                ld [hl], d ;Sprite 1 X
                 inc l
                 ld [hl], s_button ;Sprite 1 tile
                 inc l
-                ld [hl], OAMF_PAL1 | p_player ;Sprite 1 attibutes
+                ld [hl], p_player ;Sprite 1 attibutes
                 inc l
 
                 ;Place sprite 2
                 ld [hl], c ;Sprite 2 Y
                 inc l
-                ld a, b
+                ld a, d
                 add a, 8
-                ld [hl], a ;Sprite 2 X
-                inc l
+                ld [hl+], a ;Sprite 2 X
                 ld [hl], s_button ;Sprite 2 tile
-                ld a, [w_player_tick]
-                inc a
-                ld [w_player_tick], a
-                bit 5, a
+                bit 4, e
                 jr z, :+
-                ld [hl], s_button+2
+                    ld [hl], s_button+2
                 :
                 inc l
                 ld [hl], OAMF_PAL1 | p_player

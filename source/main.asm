@@ -191,6 +191,8 @@ main:
 
     ;Increment timer
     call hud_update_timer
+    
+    call sprite_finish
 
     ;Go back to the start
     jp main

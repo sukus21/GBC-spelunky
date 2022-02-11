@@ -387,10 +387,8 @@ entsys_oobcheck::
         or a, entity_visible
         ld e, a
 
-        ;Set/reset visibility flag
-        ld a, [de]
-        and a, %01111111
-        or a, b
+        ;Set visibility flag
+        ld a, b
         ld [de], a
 
         ;Go back in

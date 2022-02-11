@@ -8,7 +8,7 @@ INCLUDE "blockproperties.inc"
 
 SECTION "ENTITY CORPSE", ROMX, BANK[bank_entities]
 
-;Treasure initialization data
+;Corpse initialization data
 entity_corpse_init::
     db bank_entities ;Bank ID
     dw entity_corpse_execute ;Code address
@@ -61,14 +61,6 @@ entity_corpse_destroy::
     or a, entity_sprite
     ld l, a
     ld h, b
-
-    ;Free sprites
-    ld a, [hl]
-    cp a, $A0
-    jr z, :+
-        ld b, 2
-        call sprite_free
-    :
 
     ;Return
     ld b, $FF
@@ -199,157 +191,104 @@ entity_corpse_execute::
 
     .donephysics
 
-    ;Check animation flag
+    ;Check visibility flag
     ld a, l
     and a, %11000000
     or a, entity_visible
     ld l, a
-    ld a, [hl]
-    sra a
-    res 5, a
+    xor a
     cp a, [hl]
-    ld [hl], a
 
-    ;Flags are not the same
-    ;Appear or disappear
-    jr z, .visible_regular
-
-        ;Visible flag changed
-        or a, a ;Sets Z flag if A is 0
-        jr z, .invisible
-
-            ;Entity should appear on screen
-            ;Allocate sprites
-            ld a, 2
-            call sprite_alloc_multi
-            inc l
-            ld [hl-], a
-
-            ld e, a
-            ld d, high(w_oam_mirror)
-            inc e
-            inc e
-            ld a, s_caveman_dead
-            ld [de], a
-            inc e
-            ld a, OAMF_PAL1 | p_caveman
-            ld [de], a
-            inc e
-            inc e
-            inc e
-            ld a, s_caveman_dead
-            ld [de], a
-            inc e
-            ld a, OAMF_PAL1 | p_caveman
-            ld [de], a
-
-            ;Jump
-            jr .visible_regular
-
-        .invisible
-
-            ;Entity should disappear
-            ;Free allocated sprite
-            inc l
-            ld a, [hl]
-            ld [hl], $A0
-            dec l
-            ld b, 2
-            call sprite_free
-            ;Falls into label `.visible_regular`
-    ;
-
-    ;Is visible flag set? ;HL = `entity_visible`
-    .visible_regular
-    bit entsys_visible_currentB, [hl]
+    ;Return if invisible
     ret z
+    
 
-        ;Entity is visible, show that sprite!
-        ;Grab sprite ID
-        inc l
-        ld d, [hl]
+    ;Grab sprite ID
+    ld b, 2 * 4
+    call sprite_get
+    ld d, a
 
-        ;Get entity position
-        ld a, l
-        sub a, entity_sprite - entity_x
-        ld l, a
+    ;Get entity position
+    ld a, l
+    sub a, entity_visible - entity_x
+    ld l, a
 
-        ;Convert X-position
-        ldh a, [h_scx]
-        ld e, a
-        ld a, [hl+]
-        and a, %00001111
-        ld b, a
-        ld a, [hl+]
-        and a, %11110000
-        or a, b
-        swap a
-        sub a, e
-        add a, 4
-        ld b, a
+    ;Convert X-position
+    ldh a, [h_scx]
+    ld e, a
+    ld a, [hl+]
+    and a, %00001111
+    ld b, a
+    ld a, [hl+]
+    and a, %11110000
+    or a, b
+    swap a
+    sub a, e
+    add a, 4
+    ld b, a
 
-        ;Convert Y-position
-        ldh a, [h_scy]
-        ld e, a
-        ld a, [hl+]
-        and a, %00001111
-        ld c, a
-        ld a, [hl+]
-        and a, %11110000
-        or a, c
-        swap a
-        sub a, e
-        add a, 11
-        ld c, a
+    ;Convert Y-position
+    ldh a, [h_scy]
+    ld e, a
+    ld a, [hl+]
+    and a, %00001111
+    ld c, a
+    ld a, [hl+]
+    and a, %11110000
+    or a, c
+    swap a
+    sub a, e
+    add a, 11
+    ld c, a
 
-        ;Write sprite positions
-        ;Register shuffling
-        ld a, l
-        add a, entity_grounded - entity_direction
-        ld e, a
-        ld a, d
-        ld d, h
-        ld l, a
-        ld h, high(w_oam_mirror)
+    ;Write sprite positions
+    ;Register shuffling
+    ld a, l
+    add a, entity_grounded - entity_direction
+    ld e, a
+    ld a, d
+    ld d, h
+    ld l, a
+    ld h, high(w_oam_mirror)
 
-        ld a, c
-        ld [hl+], a
-        ld a, b
-        ld [hl+], a
-        add a, 8
-        inc l
-        inc l
-        ld [hl], c
-        inc l
-        ld [hl+], a
+    ld a, c
+    ld [hl+], a
+    ld a, b
+    ld [hl+], a
+    add a, 8
+    inc l
+    inc l
+    ld [hl], c
+    inc l
+    ld [hl+], a
 
-        ;Get sprite data
-        ld b, p_caveman + OAMF_PAL1
+    ;Get sprite data
+    ld b, p_caveman + OAMF_PAL1
+    ld a, [de]
+    inc e
+    inc e
+    cp a, 1
+    jr z, :+
         ld a, [de]
+        jr :++
+    :
         inc e
-        inc e
-        cp a, 1
-        jr z, :+
-            ld a, [de]
-            jr :++
-        :
-            inc e
-            ld a, [de]
-        :
-        ld c, a
-        inc a
-        inc a
+        ld a, [de]
+    :
+    ld c, a
+    inc a
+    inc a
 
-        ;Store the data
-        ld [hl+], a
-        ld [hl], b
-        ld a, l
-        sub a, 5
-        ld l, a
+    ;Store the data
+    ld [hl+], a
+    ld [hl], b
+    ld a, l
+    sub a, 5
+    ld l, a
 
-        ld [hl], c
-        inc l
-        ld [hl], b
+    ld [hl], c
+    inc l
+    ld [hl], b
 
 
     ;Return

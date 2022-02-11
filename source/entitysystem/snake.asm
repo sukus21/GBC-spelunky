@@ -81,14 +81,6 @@ entity_snake_destroy::
     ld l, a
     ld h, b
 
-    ;Free sprites
-    ld a, [hl]
-    cp a, $A0
-    jr z, :+
-        ld b, 2
-        call sprite_free
-    :
-
     ;Return
     ld b, $FF
     ret 
@@ -225,177 +217,123 @@ entity_snake_execute::
     and a, %11000000
     or a, entity_visible
     ld l, a
-    ld a, [hl]
-    sra a
-    res 5, a
+    xor a
     cp a, [hl]
-    ld [hl], a
-
-    ;Flags are not the same
-    ;Appear or disappear
-    jr z, .visible_regular
-
-        ;Visible flag changed
-        or a, a ;Sets Z flag if A is 0
-        jr z, .invisible
-
-            ;Entity should appear on screen
-            ;Allocate sprites
-            ld a, 2
-            call sprite_alloc_multi
-            inc l
-            ld [hl-], a
-
-            ld e, a
-            ld d, high(w_oam_mirror)
-            inc e
-            inc e
-            ld a, s_snake + 2
-            ld [de], a
-            inc e
-            ld a, OAMF_PAL1 | p_snake
-            ld [de], a
-            inc e
-            inc e
-            inc e
-            ld a, s_snake + 2
-            ld [de], a
-            inc e
-            ld a, OAMF_PAL1 | p_snake
-            ld [de], a
-
-            ;Jump
-            jr .visible_regular
-
-        .invisible
-
-            ;Entity should disappear
-            ;Free allocated sprite
-            inc l
-            ld a, [hl]
-            ld b, 2
-            call sprite_free
-
-            ;Write invalid sprite
-            ;Remove for optimization
-            ld a, $A0
-            ld [hl-], a
-            ;Falls into label `.visible_regular`
-    ;
-
-    ;Is visible flag set? ;HL = `entity_visible`
-    .visible_regular
-    bit entsys_visible_currentB, [hl]
+    
+    ;Return if invisible
     ret z
 
-        ;Entity is visible, show that sprite!
-        ;Grab sprite ID
-        inc l
-        ld d, [hl]
-        inc l
-        inc l
-        ld b, [hl]
+    
+    ;Grab sprite ID
+    ld b, 2 * 4
+    call sprite_get
+    ld d, a
 
-        ;Get player position
-        ld a, l
-        sub a, entity_timer - entity_state
-        ld l, a
-        ld c, [hl]
-        inc l
-        push bc
+    ;Get timer interval
+    inc l
+    inc l
+    inc l
+    ld b, [hl]
 
-        ;Convert X-position
-        ldh a, [h_scx]
-        ld e, a
-        ld a, [hl+]
-        and a, %00001111
-        ld b, a
-        ld a, [hl+]
-        and a, %11110000
-        or a, b
-        swap a
-        sub a, e
-        add a, 4
-        ld b, a
+    ;Get entity position
+    ld a, l
+    sub a, entity_timer - entity_state
+    ld l, a
+    ld c, [hl]
+    inc l
+    push bc
 
-        ;Convert Y-position
-        ldh a, [h_scy]
-        ld e, a
-        ld a, [hl+]
-        and a, %00001111
-        ld c, a
-        ld a, [hl+]
-        and a, %11110000
-        or a, c
-        swap a
-        sub a, e
-        add a, 10
-        ld c, a
+    ;Convert X-position
+    ldh a, [h_scx]
+    ld e, a
+    ld a, [hl+]
+    and a, %00001111
+    ld b, a
+    ld a, [hl+]
+    and a, %11110000
+    or a, b
+    swap a
+    sub a, e
+    add a, 4
+    ld b, a
 
-        ;Get direction and speed
-        ld a, [hl+]
-        ld e, a ;Direction
-        ld a, [hl+]
+    ;Convert Y-position
+    ldh a, [h_scy]
+    ld e, a
+    ld a, [hl+]
+    and a, %00001111
+    ld c, a
+    ld a, [hl+]
+    and a, %11110000
+    or a, c
+    swap a
+    sub a, e
+    add a, 10
+    ld c, a
 
-        ;Write sprite positions
-        ld l, d
-        ld d, a
-        ld a, c
-        ld h, high(w_oam_mirror)
-        ld [hl+], a
-        ld a, b
-        ld [hl+], a
-        add a, 8
-        inc l
-        inc l
-        ld [hl], c
-        inc l
-        ld [hl+], a
+    ;Get direction and speed
+    ld a, [hl+]
+    ld e, a ;Direction
+    ld a, [hl+]
 
-        ;Write sprite data
-        ld d, s_snake
-        pop bc
-        ld a, c
+    ;Write sprite positions
+    ld l, d
+    ld d, a
+    ld a, c
+    ld h, high(w_oam_mirror)
+    ld [hl+], a
+    ld a, b
+    ld [hl+], a
+    add a, 8
+    inc l
+    inc l
+    ld [hl], c
+    inc l
+    ld [hl+], a
 
-        ;Walking sprite
-        ld a, b
-        and a, %00011000
-        rra 
-        add a, s_snake
-        ld d, a
+    ;Write sprite data
+    ld d, s_snake
+    pop bc
+    ld a, c
 
-        ld b, p_snake + OAMF_XFLIP + OAMF_PAL1
-        bit physics_going_left, e
-        jr nz, :+
+    ;Walking sprite
+    ld a, b
+    and a, %00011000
+    rra 
+    add a, s_snake
+    ld d, a
 
-            ;Entity is facing right
-            inc d
-            inc d
-            res OAMB_XFLIP, b
-        :
+    ld b, p_snake + OAMF_XFLIP + OAMF_PAL1
+    bit physics_going_left, e
+    jr nz, :+
 
-        ;Store the data
-        ld [hl], d
-        inc l
-        ld [hl], b
-        ld a, l
-        sub a, 5
-        ld l, a
+        ;Entity is facing right
+        inc d
+        inc d
+        res OAMB_XFLIP, b
+    :
 
-        dec d
-        dec d
-        bit physics_going_left, e
-        jr z, :+
-            inc d
-            inc d
-            inc d
-            inc d
-        :
+    ;Store the data
+    ld [hl], d
+    inc l
+    ld [hl], b
+    ld a, l
+    sub a, 5
+    ld l, a
 
-        ld [hl], d
-        inc l
-        ld [hl], b
+    dec d
+    dec d
+    bit physics_going_left, e
+    jr z, :+
+        inc d
+        inc d
+        inc d
+        inc d
+    :
 
+    ld [hl], d
+    inc l
+    ld [hl], b
 
     ;Return
     ret

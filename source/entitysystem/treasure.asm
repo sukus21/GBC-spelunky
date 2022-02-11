@@ -127,14 +127,6 @@ entity_treasure_destroy::
     ld l, a
     ld h, b
 
-    ;Free sprites
-    ld a, [hl]
-    cp a, $A0
-    jr z, :+
-        ld b, 2
-        call sprite_free
-    :
-
     ;Add money value
     ld a, l
     add a, (treasure_variable_value + 3) - entity_sprite
@@ -276,143 +268,89 @@ entity_treasure_execute::
     and a, %11000000
     or a, entity_visible
     ld l, a
-    ld a, [hl]
-    sra a
-    res 5, a
+    xor a
     cp a, [hl]
-    ld [hl], a
 
-    ;Flags are not the same
-    ;Appear or disappear
-    jr z, .visible_regular
-
-        ;Visible flag changed
-        or a, a ;Sets Z flag if A is 0
-        jr z, .invisible
-
-            ;Entity should appear on screen
-            ;Allocate sprites
-            ld a, 2
-            call sprite_alloc_multi
-            inc l
-            ld [hl-], a
-
-            ld e, a
-            ld d, high(w_oam_mirror)
-            inc e
-            inc e
-            ld a, s_treasure + 2
-            ld [de], a
-            inc e
-            ld a, OAMF_PAL1 | p_gold
-            ld [de], a
-            inc e
-            inc e
-            inc e
-            ld a, s_treasure + 2
-            ld [de], a
-            inc e
-            ld a, OAMF_PAL1 | p_gold
-            ld [de], a
-
-            ;Jump
-            jr .visible_regular
-
-        .invisible
-
-            ;Entity should disappear
-            ;Free allocated sprite
-            inc l
-            ld a, [hl]
-            ld [hl], $A0
-            dec l
-            ld b, 2
-            call sprite_free
-            ;Falls into label `.visible_regular`
-    ;
-
-    ;Is visible flag set? ;HL = `entity_visible`
-    .visible_regular
-    bit entsys_visible_currentB, [hl]
+    ;Return if invisible
     ret z
 
-        ;Entity is visible, show that sprite!
-        ;Grab sprite ID
-        inc l
-        ld d, [hl]
 
-        ;Get player position
-        ld a, l
-        sub a, entity_sprite - entity_x
-        ld l, a
+    ;Grab sprite ID
+    ld b, 2 * 4
+    call sprite_get
+    ld d, a
 
-        ;Convert X-position
-        ldh a, [h_scx]
-        ld e, a
-        ld a, [hl+]
-        and a, %00001111
-        ld b, a
-        ld a, [hl+]
-        and a, %11110000
-        or a, b
-        swap a
-        sub a, e
-        add a, 5
-        ld b, a
+    ;Get entity position
+    ld a, l
+    sub a, entity_visible - entity_x
+    ld l, a
 
-        ;Convert Y-position
-        ldh a, [h_scy]
-        ld e, a
-        ld a, [hl+]
-        and a, %00001111
-        ld c, a
-        ld a, [hl+]
-        and a, %11110000
-        or a, c
-        swap a
-        sub a, e
-        add a, 9
-        ld c, a
+    ;Convert X-position
+    ldh a, [h_scx]
+    ld e, a
+    ld a, [hl+]
+    and a, %00001111
+    ld b, a
+    ld a, [hl+]
+    and a, %11110000
+    or a, b
+    swap a
+    sub a, e
+    add a, 5
+    ld b, a
 
-        ;Write sprite positions
-        ;Register shuffling
-        ld a, l
-        add a, treasure_variable_sprite - entity_direction
-        ld e, a
-        ld a, d
-        ld d, h
-        ld l, a
-        ld h, high(w_oam_mirror)
+    ;Convert Y-position
+    ldh a, [h_scy]
+    ld e, a
+    ld a, [hl+]
+    and a, %00001111
+    ld c, a
+    ld a, [hl+]
+    and a, %11110000
+    or a, c
+    swap a
+    sub a, e
+    add a, 9
+    ld c, a
 
-        ld a, c
-        ld [hl+], a
-        ld a, b
-        ld [hl+], a
-        add a, 8
-        inc l
-        inc l
-        ld [hl], c
-        inc l
-        ld [hl+], a
+    ;Write sprite positions
+    ;Register shuffling
+    ld a, l
+    add a, treasure_variable_sprite - entity_direction
+    ld e, a
+    ld a, d
+    ld d, h
+    ld l, a
+    ld h, high(w_oam_mirror)
 
-        ;Get sprite data
-        ld b, p_gold + OAMF_PAL1
-        ld a, [de]
-        ld c, a
-        inc a
-        inc a
+    ld a, c
+    ld [hl+], a
+    ld a, b
+    ld [hl+], a
+    add a, 8
+    inc l
+    inc l
+    ld [hl], c
+    inc l
+    ld [hl+], a
 
-        ;Store the data
-        ld [hl+], a
-        ld [hl], b
-        ld a, l
-        sub a, 5
-        ld l, a
+    ;Get sprite data
+    ld b, p_gold + OAMF_PAL1
+    ld a, [de]
+    ld c, a
+    inc a
+    inc a
 
-        ld [hl], c
-        inc l
-        ld [hl], b
+    ;Store the data
+    ld [hl+], a
+    ld [hl], b
+    ld a, l
+    sub a, 5
+    ld l, a
 
+    ld [hl], c
+    inc l
+    ld [hl], b
 
     ;Return
     ret

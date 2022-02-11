@@ -321,6 +321,7 @@ var_data_h:
         h_setup:: db $FF
         h_is_color:: db $FF
         h_bank_number:: db bank_dwellings_main
+        h_sprite_slot:: db $01
         ;
 
         ;Shadow scrolling registers
