@@ -5,7 +5,7 @@
 ; - 1: Base tile ID
 ; - 2: Palette
 ; - 3: Block ID
-tm_bg1strip: MACRO
+MACRO tm_bg1strip
     
     ;Initialize tile ID
     ld c, \1

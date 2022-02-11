@@ -6,7 +6,7 @@ INCLUDE "hardware.inc"
 ; Input:
 ; - 1: Tile 1 ID
 ; - 2: Palette
-tm_flip: MACRO
+MACRO tm_flip
     
     ;Load tiles
     ld a, \1+1

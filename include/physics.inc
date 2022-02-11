@@ -35,7 +35,7 @@ gstate_tumble equ $FF
 ; - 4: Output low
 ;
 ; Destroys: `a`, 1, 3, 4
-coordinates_level: MACRO
+MACRO coordinates_level
     xor a ;Resets carry flag
     ld \4, a
     rr \2

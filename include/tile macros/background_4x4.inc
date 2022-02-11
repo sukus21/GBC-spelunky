@@ -3,7 +3,7 @@
 ; Input:
 ; - 1: Base tile ID
 ; - 2: Palette
-tm_bg4x4: MACRO
+MACRO tm_bg4x4
     
     ;Get vertical offset (bit 2-3)
     ld a, l
@@ -71,7 +71,7 @@ ENDM
 ; Input:
 ; - 1: Base tile ID
 ; - 2: Palette
-tm_bg4x4_h: MACRO
+MACRO tm_bg4x4_h
     
     ;Get vertical offset (bit 2-3)
     ld a, l

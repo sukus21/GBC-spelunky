@@ -6,7 +6,7 @@ INCLUDE "hardware.inc"
 ; Input:
 ; - 1: Tile 1 ID
 ; - 2: Palette
-tm_altar: MACRO
+MACRO tm_altar
     
     ;Regular tile (copy-pasted from simple.inc)
     bit 0, e
@@ -71,7 +71,7 @@ ENDM
 ; Input:
 ; - 1: Tile 1 ID
 ; - 2: Palette
-tile_macro_altar: MACRO
+MACRO tile_macro_altar
     
     ;Regular tile
     bit 0, c

@@ -4,7 +4,7 @@
 ; Input:
 ; - 1: Tile 1 ID
 ; - 2: Palette
-tm_duplicate: MACRO
+MACRO tm_duplicate
     
     ;Place tiles
     ld a, \1
@@ -38,7 +38,7 @@ ENDM
 ; Input:
 ; - 1: Tile 1 ID
 ; - 2: Palette
-tm_duplicate_h: MACRO
+MACRO tm_duplicate_h
     
     ;Place tiles
     ld a, \1

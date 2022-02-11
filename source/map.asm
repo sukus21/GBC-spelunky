@@ -600,7 +600,8 @@ map_update_block::
 
 
 
-; Converts an entity's XXYY coordinates into XY screen coordinates
+; Converts an entity's XXYY coordinates into XY screen coordinates.
+; Unused. Why is this still here?
 ;
 ; Input:
 ; - `bc`: Entity pointer
@@ -608,7 +609,7 @@ map_update_block::
 ; Output:
 ; - `hl`: Entity pointer + 4
 ; - `de`: sprite X/Y
-worldspace_to_screenspace: MACRO 
+MACRO worldspace_to_screenspace
     
 
     ;19

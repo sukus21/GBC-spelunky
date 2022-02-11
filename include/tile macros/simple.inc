@@ -4,7 +4,7 @@
 ; Input:
 ; - 1: Tile 1 ID
 ; - 2: Palette
-tm_simple: MACRO
+MACRO tm_simple
     
     ;Load tiles
     ld a, \1
@@ -38,7 +38,7 @@ ENDM
 ; Input:
 ; - 1: Tile 1 ID
 ; - 2: Palette
-tm_simple_h: MACRO
+MACRO tm_simple_h
     
     ;Load tile 1
     ld c, \1

@@ -6,7 +6,7 @@ INCLUDE "hardware.inc"
 ; Input:
 ; - 1: Tile 1 ID
 ; - 2: Palette
-tm_mirror: MACRO
+MACRO tm_mirror
     
     ;Load tiles
     ld a, \1
@@ -44,7 +44,7 @@ ENDM
 ; Input:
 ; - 1: Tile 1 ID
 ; - 2: Palette
-tm_mirror_h: MACRO
+MACRO tm_mirror_h
     
     ;Load tile 1
     ld c, \1

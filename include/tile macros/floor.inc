@@ -5,7 +5,7 @@
 ; - 1: Base tile ID
 ; - 2: Palette
 ; - 3: Block ID
-tm_floor_experimental: MACRO
+MACRO tm_floor_experimental
     
     ;Palettes               =21
     ;Switch VRAM bank
@@ -161,7 +161,7 @@ ENDM
 ; - 1: Base tile ID
 ; - 2: Palette
 ; - 3: Block ID
-tm_floor: MACRO
+MACRO tm_floor
     
     ;Palettes               =21
     ;Switch VRAM bank

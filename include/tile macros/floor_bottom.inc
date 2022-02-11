@@ -5,7 +5,7 @@
 ; - 2: Palette normal
 ; - 3: Block ID
 ; - 4: Palette top
-tile_macro_floor_bottom: MACRO
+MACRO tile_macro_floor_bottom
     
     ;Save base palette in temp variable
     ld a, \2

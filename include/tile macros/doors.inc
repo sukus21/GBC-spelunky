@@ -9,7 +9,7 @@ INCLUDE "hardware.inc"
 ; - 3: Door block ID
 ; - 4: Background tile ID
 ; - 5: Background palette ID
-tm_door_left: MACRO
+MACRO tm_door_left
 
     ;Place palettes =25
     ld a, 1         ;2
@@ -92,7 +92,7 @@ ENDM
 ; - 3: Door block ID
 ; - 4: Background tile ID
 ; - 5: Background palette ID
-tm_door_right: MACRO
+MACRO tm_door_right
 
     ;Place palettes =25
     ld a, 1         ;2
@@ -176,7 +176,7 @@ ENDM
 ; - 3: Door block ID
 ; - 4: Background tile ID
 ; - 5: Background palette ID
-tm_door_left_1strip: MACRO
+MACRO tm_door_left_1strip
 
     ;Place palettes =25
     ld a, 1         ;2
@@ -246,7 +246,7 @@ ENDM
 ; - 3: Door block ID
 ; - 4: Background tile ID
 ; - 5: Background palette ID
-tm_door_right_1strip: MACRO
+MACRO tm_door_right_1strip
 
     ;Place palettes =25
     ld a, 1         ;2
@@ -320,7 +320,7 @@ ENDM
 ; - 3: Door block ID
 ; - 4: Background tile ID
 ; - 5: Background palette ID
-tm_door_left_duplicate: MACRO
+MACRO tm_door_left_duplicate
 
     ;Place palettes =25
     ld a, 1         ;2
@@ -390,7 +390,7 @@ ENDM
 ; - 3: Door block ID
 ; - 4: Background tile ID
 ; - 5: Background palette ID
-tm_door_right_duplicate: MACRO
+MACRO tm_door_right_duplicate
 
     ;Place palettes =25
     ld a, 1         ;2
@@ -463,7 +463,7 @@ ENDM
 ; - 3: Door block ID
 ; - 4: Blockade tile ID
 ; - 5: Blockade palette
-tm_door_blockade: MACRO
+MACRO tm_door_blockade
 
     ;Move pointer down
     ld c, 64
@@ -556,7 +556,7 @@ ENDM
 ; - 3: Door block ID
 ; - 4: Free tile ID
 ; - 5: Free palette
-tm_door_open: MACRO
+MACRO tm_door_open
 
     ;Move pointer down
     ld c, 64

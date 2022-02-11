@@ -7,7 +7,7 @@ INCLUDE "hardware.inc"
 ; - 2: Palette normal
 ; - 3: Block ID
 ; - 4: Special bottom palette
-tm_ground: MACRO
+MACRO tm_ground
     
     ;Initialize C
     ld c, \1+8
@@ -124,7 +124,7 @@ ENDM
 ; - 2: Palette normal
 ; - 3: Block ID
 ; - 4: Palette top
-tile_macro_ground_top: MACRO
+MACRO tile_macro_ground_top
     
     ;Save base palette in temp variable
     ld a, \2
@@ -226,7 +226,7 @@ ENDM
 ; - 2: Palette normal
 ; - 3: Block ID
 ; - 4: Palette bottom
-tile_macro_ground_bottom: MACRO
+MACRO tile_macro_ground_bottom
     
     ;Save base palette in temp variable
     ld a, \2
