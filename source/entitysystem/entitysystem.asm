@@ -8,6 +8,7 @@ INCLUDE "player.inc"
 SECTION "ENTITYSYSTEM", ROM0
 
 ; Creates an entity from a given pointer.
+; Lives in ROM0.
 ; 
 ; Input:
 ; - `bc`: Entity initialization data
@@ -121,6 +122,7 @@ entsys_alloc::
 
 
 ; Frees an allocated entity.
+; Lives in ROM0.
 ;
 ; Input: 
 ; - `hl`: Pointer to entity
@@ -167,6 +169,7 @@ entsys_free::
 
 
 ; Deletes ALL entities currently in the entity system.
+; Lives in ROM0.
 entsys_clear::
 
     ;Switch WRAMX bank
@@ -192,8 +195,8 @@ entsys_clear::
 
 
 ; Damage an entity.
-; Decreases entity health, and calls destroy 
-; event if entity health reaches 0.
+; Decreases entity health, and calls destroy event if entity health reaches 0.
+; Lives in ROM0.
 ;
 ; Input:
 ; - `de`: Entity pointer (%xx000000)
@@ -257,6 +260,7 @@ entsys_damage::
 
 
 ; Runs a piece of code from the entity, then frees it.
+; Lives in ROM0.
 ;
 ; Input:
 ; - `hl`: Pointer to entity (anywhere)
@@ -302,6 +306,7 @@ entsys_destroy::
 
 ; Checks for a collision with the camera bounding box.
 ; Any entities collided with get their visibility flag set.
+; Lives in ROM0.
 entsys_oobcheck::
 
     ;Prepare camera pseudo-entity
@@ -356,7 +361,7 @@ entsys_oobcheck::
         ld c, entsys_col_visibleF
 
         ;Check entity masks
-        call _hl_ ;HL points to `w_entsys_collision`.
+        call _hl_ ;HL points to `w_entsys_collision`
         ld a, d
         cp a, $FF
         jr z, .quit
@@ -371,7 +376,7 @@ entsys_oobcheck::
         call entsys_collision_RE
         ld b, 0
         jr z, :+
-            set 7, b
+            dec b
         :
         pop hl
         pop de
@@ -402,6 +407,7 @@ entsys_oobcheck::
 
 ; Entity collision check.
 ; Rectangle to entity.
+; Lives in ROM0.
 ;
 ; Input:
 ; - `bc`: Rectangle data pointer [XXYYxxyy]
@@ -609,6 +615,8 @@ entsys_collision_RE::
 
 ; Entity collision check.
 ; Rectangle to player.
+; Lives in ROM0.
+; 
 ; Input:
 ; - `bc`: Rectangle data pointer [XXYYxxyy]
 ;
@@ -815,6 +823,7 @@ entsys_collision_RP::
 
 
 ; Checks collision between player and an entity.
+; Lives in ROM0.
 ;
 ; Input:
 ; - `de`: Entity data pointer [-XXYY----WWHH]
@@ -1014,6 +1023,7 @@ entsys_collision_PE::
 
 ; Entity physics.
 ; Used to give entities physics that look like what the player has.
+; Lives in ROM0.
 ; 
 ; Temporary variables used:
 ; - 1: vspp
@@ -1471,6 +1481,7 @@ entsys_physics::
 
 ; Entity physics.
 ; Used to give entities physics that look like what the player has.
+; Lives in ROM0.
 ; 
 ; Temporary variables used:
 ; - 1: vspp
@@ -1965,6 +1976,7 @@ entsys_physics_tumble::
 
 ; Does gravity like what the player has.
 ; That's it I think.
+; Lives in ROM0.
 ;
 ; Input:
 ; - `hl`: `entity_variables`

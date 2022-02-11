@@ -1,12 +1,14 @@
 INCLUDE "hardware.inc"
 
 SECTION "COPYDATA", ROM0
+
 ; Copies data from one location to another using the CPU.
+; Lives in ROM0.
 ;
 ; Input:
-; - `hl` = Destination
-; - `bc` = Source
-; - `de` = Byte count
+; - `hl`: Destination
+; - `bc`: Source
+; - `de`: Byte count
 ;
 ; Output:
 ; - `hl` += Byte count
@@ -33,12 +35,13 @@ memcopy::
 
 
 
-; Sets a number of bytes to a single value
+; Sets a number of bytes to a single value.
+; Lives in ROM0.
 ;
 ; Input:
-; - `hl` = Destination
-; - `b` = Fill byte
-; - `de` = Byte count
+; - `hl`: Destination
+; - `b`: Fill byte
+; - `de`: Byte count
 ;
 ; Output:
 ; - `hl` += Byte count
@@ -63,11 +66,12 @@ memfill::
 
 
 
-; Copies a palette to background color memory
+; Copies a palette to background color memory.
+; Lives in ROM0.
 ;
 ; Input:
-; - `hl` = Palette address
-; - `a` = Palette index * 8
+; - `hl`: Palette address
+; - `a`: Palette index * 8
 ;
 ; Output:
 ; - `hl` += `$0010`
@@ -110,11 +114,12 @@ palette_copy_bg::
 
 
 
-; Copies a palette to sprite color memory
+; Copies a palette to sprite color memory.
+; Lives in ROM0.
 ;
 ; Input:
-; - `hl` = Palette address
-; - `a` = Palette index * 8
+; - `hl`: Palette address
+; - `a`: Palette index * 8
 ;
 ; Output:
 ; - `hl` += `$0010`
@@ -158,6 +163,7 @@ palette_copy_spr::
 
 
 ; Copies ALL palettes.
+; Lives in ROM0.
 ; 
 ; Input:
 ; `hl`: Palette address
@@ -230,6 +236,7 @@ palette_copy_all::
 
 
 ; Creates a copy of the currently loaded palettes.
+; Lives in ROM0.
 ;
 ; Input:
 ; - `hl`: Where to store the new palettes

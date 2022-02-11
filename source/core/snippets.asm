@@ -3,10 +3,11 @@ SECTION "SNIPPETS", ROM0
 ; Switches bank and calls a given address.
 ; Does NOT switch banks back after returning.
 ; Usefull when bankjumping from a non-bankable area.
+; Lives in ROM0.
 ;
 ; Input:
-; - `b` = ROM bank number
-; - `hl` = Address to jump to
+; - `b`: ROM bank number
+; - `hl`: Address to jump to
 ;
 ; Destroys: `a`, unknown
 bank_call_0::
@@ -24,10 +25,11 @@ bank_call_0::
 
 ; Switches bank and calls a given address.
 ; Switches banks back after returning.
+; Lives in ROM0.
 ;
 ; Input:
-; - `b` = ROM bank number
-; - `hl` = Address to jump to
+; - `b`: ROM bank number
+; - `hl`: Address to jump to
 ;
 ; Destroys: `af`, `de`, unknown
 bank_call_x::
@@ -52,10 +54,11 @@ bank_call_x::
 ; Switches bank and calls a given address.
 ; Switches banks back after returning.
 ; Also saves and restores WRAMX bank on GBC.
+; Lives in ROM0.
 ;
 ; Input:
-; - `d` = ROM bank number
-; - `hl` = Address to jump to
+; - `d`: ROM bank number
+; - `hl`: Address to jump to
 ;
 ; Destroys: `af`, `de`, unknown
 bank_call_xd::
@@ -80,8 +83,9 @@ bank_call_xd::
 
 
 
-;DO NOT CALL MANUALLY! 
-;Return address for `bank_call`. Switches bank and returns
+; DO NOT CALL MANUALLY! 
+; Return address for `bank_call`. Switches bank and returns.
+; Lives in ROM0.
 ;
 ; Destroys: `af`
 bank_return:
@@ -98,7 +102,8 @@ bank_return:
 
 
 ; DO NOT CALL MANUALLY! 
-; Return address for `bank_call_xd`. Switches bank and returns
+; Return address for `bank_call_xd`. Switches bank and returns.
+; Lives in ROM0.
 ;
 ; Destroys: `af`, `de`
 bank_return_d:
@@ -115,10 +120,11 @@ bank_return_d:
 
 
 
-; Literally just jumps to the address of HL
+; Literally just jumps to the address of HL.
+; Lives in ROM0.
 ; 
 ; Input:
-; - `hl` = Address to jump to
+; - `hl`: Address to jump to
 ; 
 ; Destroys: unknown
 _hl_::

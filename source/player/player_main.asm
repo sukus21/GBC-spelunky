@@ -40,9 +40,10 @@ player_init::
 
 
 ; Test for a platformer engine
+; Main player platforming system.
 ; 
 ; Destroys: all(probably)
-player::
+player_main::
 
     ;Decrement invincibility
     ld hl, w_player_invincible
@@ -635,7 +636,7 @@ player::
         inc b
         :
 
-
+        ;Camera function
         call camera_handle
     ;
 

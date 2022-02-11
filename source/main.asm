@@ -65,17 +65,19 @@ SECTION "ENTRY POINT", ROM0[$0100]
 
 SECTION "MAIN", ROM0[$0150]
 
-;Entrypoint of the program, jumped to after setup is complete
+; Entrypoint of the program, jumped to after setup is complete.
+; Lives in ROM0.
 start::
 
-;Endless loop, replace with game code
+; Main game loop, runs everything.
+; Lives in ROM0.
 main:
     
-    ;Wait for STAT interupt
+    ;Wait for STAT interupt (if it hasn't happened yet)
     ld a, [rIE]
     and a, IEF_LCDC
     jr z, :+
-    halt
+        halt
     :
     
     ;Wait for Vblank
@@ -137,21 +139,22 @@ main:
     ;Update colors?
     ldh a, [h_input_pressed]
     bit PADB_SELECT, a
-    jr z, :+
+    jr z, .samecolors
 
         ld hl, dwellings_palettes
         ld a, [w_palette_used]
         cpl 
         ld [w_palette_used], a
         inc a
-        jr z, @+5
+        jr z, :+
             ld hl, w_palette_buffer
+        :
         ld a, [w_world_bank]
         ldh [h_bank_number], a
         ld [$2000], a
         call palette_copy_all
         jr .dma
-    :
+    .samecolors
 
     ;I have spare VRAM-time, update HUD
     ldh a, [rLY]
@@ -171,12 +174,10 @@ main:
     ;Get input
     call input
 
-    ;Reset the entire thing maybe
-    ;bit PADB_START, c
-    ;jp nz, setup_newlevel
-
     ;Player code
-    call_bank_m0 player
+    ld b, bank(player_main)
+    ld hl, player_main
+    call bank_call_0
 
     ;Entity code
     ld a, bank_entities
@@ -198,6 +199,7 @@ main:
 
 
 ; Call this to end the game.
+; Lives in ROM0.
 gameover::
 
     ;Wait for Vblank

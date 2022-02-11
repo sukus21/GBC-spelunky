@@ -3,6 +3,7 @@ INCLUDE "hardware.inc"
 SECTION "INPUT", ROM0
 ; Gets the current buttons pressed.
 ; Bits 0-3 = buttons, bits 4-7 = dpad.
+; Lives in ROM0.
 ;
 ; Output:
 ; - `b`: Byte of buttons held
@@ -69,3 +70,4 @@ input::
     ld a, $FF
     ldh [rP1], a
     ret
+;

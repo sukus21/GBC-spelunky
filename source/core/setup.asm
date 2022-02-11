@@ -4,11 +4,12 @@ INCLUDE "player.inc"
 
 SECTION "SETUP", ROM0
 
-;Supposed to run first thing when the game starts.
+; Supposed to run first thing when the game starts.
+; Lives in ROM0.
 setup_complete::
     
     ;Set h_is_color variable
-    ld b, 0 ;Screw GBA enhanched mode, not doin' it
+    ld b, 0 ;GBA enhanced mode bad
     cp a, $11
     jr nz, .nocolor
     ld a, [$0143] ;GBC enable flag
@@ -35,7 +36,8 @@ setup_complete::
     call intro
 
 
-;Same as `setup_complete`, but skips checking the GBC enable flag.
+; Same as `setup_complete`, but skips checking the GBC enable flag.
+; Lives in ROM0.
 setup_partial::
     
     ;Wait for Vblank
@@ -137,6 +139,9 @@ setup_partial::
     call level_path_create
     call dwellings_map_generate
 
+    ;Clear all entity slots, because I say so
+    ;call entsys_clear
+
     ;Initialize player
     call_bank_m0 player_init
 
@@ -219,6 +224,7 @@ setup_partial::
 
 ; Partially a setup function.
 ; Run when going to a new level.
+; Lives in ROM0.
 setup_newlevel::
 
     ;Wait for Vblank
@@ -237,9 +243,8 @@ setup_newlevel::
     ld sp, w_stack
 
     ;Clear entities and sprites
-    xor a
-    ld b, 40
-    call sprite_free
+    ld a, 0
+    ldh [h_sprite_slot], a
     call entsys_clear
 
     ;

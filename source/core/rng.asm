@@ -1,6 +1,7 @@
 SECTION "RNG ROUTINE", ROM0
 
 ; RNG routine. More or less copied from SMW lol.
+; Lives in ROM0.
 ; 
 ; Output:
 ; - `a`: Random value
@@ -23,6 +24,7 @@ rng_run_single::
 
 
 ; RNG routine. More or less copied from SMW lol.
+; Lives in ROM0.
 ; 
 ; Output:
 ; - `de`: Random values
@@ -58,6 +60,7 @@ rng_run::
 
 
 ; REQUIRES HL TO BE SET TO h_rng_seed!!!
+; Lives in ROM0.
 ;
 ; Output:
 ; - `a`: Random value
@@ -89,6 +92,7 @@ rng_tick:
 
 
 ; Unused, just wanted to test something.
+; Lives in ROM0.
 rngtest::
 
     ld hl, $D000
@@ -117,4 +121,4 @@ rngtest::
     .noloop
     ld b, b
     jr rngtest
-
+;
