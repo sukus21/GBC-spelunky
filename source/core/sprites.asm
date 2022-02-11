@@ -1,7 +1,8 @@
 INCLUDE "hardware.inc"
 
 SECTION "SPRITES", ROM0
-; DMA routune to be copied to HRAM
+; DMA routune to be copied to HRAM.
+; Lives in ROM0.
 ;
 ; DO NOT CALL!!!
 dma_routine:
@@ -22,7 +23,8 @@ dma_routine:
 
 
 
-; Copy the DMA routine to HRAM
+; Copy the DMA routine to HRAM.
+; Lives in ROM0.
 ;
 ; Destroys: all
 sprite_setup::
@@ -49,6 +51,9 @@ sprite_setup::
 
 
 
+; Get one or multiple sprites.
+; Lives in ROM0.
+; 
 ; Input:
 ; - `b`: Sprite count * 4
 ;
