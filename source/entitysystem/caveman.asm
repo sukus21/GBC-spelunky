@@ -140,7 +140,6 @@ entity_caveman_execute::
     ;Check player in front, agro activation
 
         ;Move pointer to state
-        ld b, b
         ld a, l
         sub a, entity_visible - entity_state
         ld l, a
