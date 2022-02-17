@@ -132,7 +132,7 @@ setup_partial::
 
     ;Switch to the dwellings bank
     ld a, bank_dwellings_main
-    ld [$2000], a
+    ld [rROMB0], a
     call dwellings_load
 
     ;Create level
@@ -160,7 +160,7 @@ setup_partial::
     
     ;Copy the level to VRAM
     ld a, bank_dwellings_main
-    ld [$2000], a
+    ld [rROMB0], a
     ld d, $0D
     .maptomem
     push bc
@@ -251,7 +251,7 @@ setup_newlevel::
 
     ;Switch to the dwellings bank
     ld a, bank_dwellings_main
-    ld [$2000], a
+    ld [rROMB0], a
     ldh [h_bank_number], a
 
     call hud_init
@@ -278,7 +278,7 @@ setup_newlevel::
     
     ;Copy the level to VRAM
     ld a, bank_dwellings_main
-    ld [$2000], a
+    ld [rROMB0], a
     ld d, $0D
     .maptomem
     push bc

@@ -1,3 +1,5 @@
+INCLUDE "hardware.inc"
+
 SECTION "SNIPPETS", ROM0
 
 ; Switches bank and calls a given address.
@@ -15,7 +17,7 @@ bank_call_0::
     ;Switch banks
     ld a, b
     ldh [h_bank_number], a
-    ld [$2000], a
+    ld [rROMB0], a
 
     ;Jump
     jp hl
@@ -43,7 +45,7 @@ bank_call_x::
     ;Switch banks
     ld a, b
     ldh [h_bank_number], a
-    ld [$2000], a
+    ld [rROMB0], a
 
     ;Jump
     jp hl
@@ -70,7 +72,7 @@ bank_call_xd::
     ;Switch banks
     ld a, d
     ldh [h_bank_number], a
-    ld [$2000], a
+    ld [rROMB0], a
     push de
 
     ;Set up for returning
@@ -93,7 +95,7 @@ bank_return:
     ;Returning after jump, reset bank number
     pop af
     ldh [h_bank_number], a
-    ld [$2000], a
+    ld [rROMB0], a
 
     ;Return
     ret
@@ -112,7 +114,7 @@ bank_return_d:
     pop de
     ld a, e
     ldh [h_bank_number], a
-    ld [$2000], a
+    ld [rROMB0], a
     
     ;Return
     ret 

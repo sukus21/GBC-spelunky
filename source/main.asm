@@ -8,7 +8,7 @@ SECTION "ERROR HANDLER", ROM0[$0038]
     ;Error handling
     v_error::
     ld a, bank(errorhandler)
-    ld [$2000], a
+    ld [rROMB0], a
     jp errorhandler
 ;
 
@@ -100,7 +100,7 @@ main:
     bit camb_update, a
     jr z, :+
 
-        ;Should it be updates horizontally or vertically?
+        ;Should it be updated horizontally or vertically?
         bit camb_vertical, a
 
         ;Fetch camera update coordinates
@@ -111,7 +111,7 @@ main:
 
         ;Switch banks around
         ld a, [w_world_bank]
-        ld [$2000], a
+        ld [rROMB0], a
         ld a, [w_layer_bank]
         ldh [rSVBK], a
 
@@ -129,7 +129,7 @@ main:
 
         ;There are items to be updated in the list
         ld a, [w_world_bank]
-        ld [$2000], a
+        ld [rROMB0], a
         ld a, [w_layer_bank]
         ldh [rSVBK], a
         call dwellings_map_update_list
@@ -151,7 +151,7 @@ main:
         :
         ld a, [w_world_bank]
         ldh [h_bank_number], a
-        ld [$2000], a
+        ld [rROMB0], a
         call palette_copy_all
         jr .dma
     .samecolors
