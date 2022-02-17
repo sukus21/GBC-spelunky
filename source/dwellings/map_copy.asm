@@ -18,7 +18,7 @@ SECTION "DWELLINGS MAP COPY", ROMX, BANK[bank_dwellings_main]
 ; Destroys: all
 dwellings_map_update_horizontal::
     
-    ;Set up a stage pointer
+    ;Set up a level pointer
     ;Vertical (y*64)
     ld h, 0
     ld a, c
@@ -37,7 +37,7 @@ dwellings_map_update_horizontal::
     add a, l
     ld e, a
 
-    ;Add stage data offset ($D0)
+    ;Add level data offset ($D0)
     ld a, $D0
     adc a, h
     ld d, a
@@ -132,7 +132,7 @@ dwellings_map_update_vertical::
     
     ;dec c
     
-    ;Set up a stage pointer
+    ;Set up a level pointer
     ;Vertical (y*64)
     ld h, 0
     ld a, c
@@ -151,7 +151,7 @@ dwellings_map_update_vertical::
     add a, l
     ld e, a
 
-    ;Add stage data offset ($D0)
+    ;Add level data offset ($D0)
     ld a, $D0
     adc a, h
     ld d, a
@@ -556,7 +556,7 @@ dwellings_map_generate::
         push de
         ld hl, w_chunk_buffer
 
-        ;Copy chunk to stage data
+        ;Copy chunk to level data
         call level_chunk_place
 
         ;Return to the start of loop
