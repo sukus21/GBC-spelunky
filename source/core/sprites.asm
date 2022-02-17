@@ -41,10 +41,6 @@ sprite_setup::
     ld de, $9F
     call memfill
 
-    ;Reset lowest sprite slot variable
-    ld a, 3
-    ld [w_spriteslot_lowest], a
-
     ;Return
     ret
 ;

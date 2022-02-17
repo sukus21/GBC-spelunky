@@ -57,29 +57,18 @@ var_data_w0:
     
         ;Blockdata
         w_blockdata::
-            REPT $100
-            db $00
-            ENDR
-        ;
+        ds $100, $00
 
         ;Tile update queue
         w_screen_update_list_count:: db $00
         w_screen_update_list_head:: db $02
         w_screen_update_list::
-            REPT $7F
-            dw $FFFF
-            ENDR
-        ;
+        ds $FE, $FF
 
         ;Sprite stuff
         w_oam_mirror::
-            REPT $A4
-            db $00
-            ENDR
-        
         ASSERT low(w_oam_mirror) == 0
-        w_spriteslot_lowest:: db $03
-        ;
+        ds $A4, $00
 
         ;Global variables
         w_globals::
@@ -90,24 +79,12 @@ var_data_w0:
         w_level_number:: db $01
         w_level_timer:: db $3C, $30, $01
         w_player_health_last:: db $FF
-        ;
 
         ;Level data
         w_level::
-        w_chunk_buffer::
-            REPT $50
-            db $00
-            ENDR
-
-        w_chunk_type::
-            REPT 36
-            db $00
-            ENDR
-        
-        w_chunk_info::
-            REPT 36
-            db $00
-            ENDR
+        w_chunk_buffer:: ds $50, $00
+        w_chunk_type:: ds 36, $00
+        w_chunk_info:: ds 36, $00
         
         w_level_width:: db $28
         w_level_height:: db $20
@@ -119,12 +96,10 @@ var_data_w0:
         w_chunk_x:: db $00
         w_chunk_y:: db $00
         w_chunk_last:: db $00
-        ;
 
         ;Physics entity buffer
         w_intro_color_buffer::
         w_collision_buffer:: dw $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000
-        ;
 
         ;Camera variables
         w_screen_update_enable:: db $00
@@ -145,7 +120,6 @@ var_data_w0:
         w_camera_cull_x2:: dw $0000
         w_camera_cull_y2:: dw $0000
         ASSERT high(w_camera_cull) == high(@)
-        ;
 
         ;Player variables
         w_player::
@@ -164,33 +138,14 @@ var_data_w0:
         w_player_invincible:: db player_invincible_time
         w_player_tick:: db $00
         ASSERT high(w_player) == high(@)
-        ;
 
         ;Palette shenanigans
         w_palette_used:: db $00 ;Light palette
-        w_palette_buffer:: 
-            dw $0000, $0000, $0000, $0000
-            dw $0000, $0000, $0000, $0000
-            dw $0000, $0000, $0000, $0000
-            dw $0000, $0000, $0000, $0000
-            dw $0000, $0000, $0000, $0000
-            dw $0000, $0000, $0000, $0000
-            dw $0000, $0000, $0000, $0000
-            dw $0000, $0000, $0000, $0000
-
-            dw $0000, $0000, $0000, $0000
-            dw $0000, $0000, $0000, $0000
-            dw $0000, $0000, $0000, $0000
-            dw $0000, $0000, $0000, $0000
-            dw $0000, $0000, $0000, $0000
-            dw $0000, $0000, $0000, $0000
-            dw $0000, $0000, $0000, $0000
-            dw $0000, $0000, $0000, $0000
+        w_palette_buffer:: ds $80, $00
 
         ;That intro thing
         w_intro_state:: db $00
         w_intro_timer:: db $00
-        ;
     ENDL
     var_data_w0_end:
 ;
