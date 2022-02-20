@@ -8,15 +8,15 @@ INCLUDE "tile macros/all.inc"
 
 SECTION "DWELLINGS MAP COPY", ROMX, BANK[bank_dwellings_main]
 
-; Updates the screen with tiles.
-; Updates a row at the gicen coordinates.
+; Updates buffer with raw tiles.
+; Updates a row at the given coordinates.
 ;
 ; Input:
 ; - `b`: Worldspace X-position
 ; - `c`: Worldspace Y-position
 ;
 ; Destroys: all
-dwellings_map_update_horizontal::
+dwellings_map_buffer_horizontal::
     
     ;Set up a level pointer
     ;Vertical (y*64)
@@ -42,32 +42,8 @@ dwellings_map_update_horizontal::
     adc a, h
     ld d, a
 
-
-
-    ;Set up a map pointer
-    ;Vertically (*32)
-    ld h, 0
-    ld a, c
-    add a, a
-    and a, %00011111
-    ld l, a
-    add hl, hl
-    add hl, hl
-    add hl, hl
-    add hl, hl
-    add hl, hl
-
-    ;Horizontally (+)
-    ld a, b
-    add a, a
-    and a, %00011111
-    add a, l
-    ld l, a
-
-    ;Add VRAM tilemap offset
-    ld a, $98
-    adc a, h
-    ld h, a
+    ;Buffer pointer
+    ld hl, w_screen_update_buffer
 
     ;Prepare that one area in HRAM
     ld a, $C3 ;jp $XXXX
@@ -77,20 +53,25 @@ dwellings_map_update_horizontal::
     ld b, 12
     .tile_load
 
-        ;Get tile ID and store it in A
-        ld a, [de]
+        ;Get tiletable
+        ld a, [w_level_tiletable]               ;3
+        ld [hl], a                              ;2
+
+        ;Get tile ID
+        ld a, [de]                              ;2
 
         ;Multiply this value by 3 (19-21)
         ld c, a                                 ;1
-        ld [hl], high(dwellings_tiletable)      ;3
         add a, c                                ;1
         jr nc, :+                               ;2/3
-        inc [hl]                                ;3
+            inc [hl]                            ;3
         :
         add a, c                                ;1
         jr nc, :+                               ;2/3
-        inc [hl]                                ;3
+            inc [hl]                            ;3
         :
+
+        ;Write destination
         ldh [h_temp_tile+1], a                  ;3
         ld a, [hl]                              ;2
         ldh [h_temp_tile+2], a                  ;3
@@ -98,15 +79,10 @@ dwellings_map_update_horizontal::
         ;Call tilehandler
         call h_temp_tile                        ;6 - 4
 
-
-
         ;Now at the end of the loop
-        ;increment level pointer
+        ;increment pointers
         inc e
-
-        ;Wrap around horizontally
         inc l
-        res 5, l
         
         ;End of loop, test counter
         dec b
@@ -119,7 +95,7 @@ dwellings_map_update_horizontal::
 
 
 
-; Updates the screen with tiles.
+; Updates buffer with raw tiles.
 ; Updates a column at given coordinates.
 ;
 ; Input:
@@ -127,10 +103,7 @@ dwellings_map_update_horizontal::
 ; - `c`: Worldspace Y-position
 ;
 ; Destroys: all
-dwellings_map_update_vertical::
-    
-    
-    ;dec c
+dwellings_map_buffer_vertical::
     
     ;Set up a level pointer
     ;Vertical (y*64)
@@ -156,8 +129,77 @@ dwellings_map_update_vertical::
     adc a, h
     ld d, a
 
+    ;Buffer pointer
+    ld hl, w_screen_update_buffer
+
+    ;Prepare that one area in HRAM
+    ld a, $C3 ;jp $XXXX
+    ldh [h_temp_tile], a
+
+    ;Load 11 blocks = 44 tiles
+    ld b, 11
+    .tile_load
+
+        ;Get tiletable
+        ld a, [w_level_tiletable]               ;3
+        ld [hl], a                              ;2
+
+        ;Get tile ID
+        ld a, [de]                              ;2
+
+        ;Multiply this value by 3 (19-21)
+        ld c, a                                 ;1
+        add a, c                                ;1
+        jr nc, :+                               ;2/3
+            inc [hl]                            ;3
+        :
+        add a, c                                ;1
+        jr nc, :+                               ;2/3
+            inc [hl]                            ;3
+        :
+
+        ;Write destination
+        ldh [h_temp_tile+1], a                  ;3
+        ld a, [hl]                              ;2
+        ldh [h_temp_tile+2], a                  ;3
+        
+        ;Call tilehandler
+        call h_temp_tile                        ;6 - 4
 
 
+        ;Move level pointer down
+        ld a, e                                 ;1
+        add a, 64                               ;2
+        ld e, a                                 ;1
+        jr nc, :+                               ;2
+        inc d                                   ;1
+        :
+
+        ;Increment buffer pointer
+        inc l
+        
+        ;End of loop, test counter
+        dec b                                   ;1
+        jr nz, .tile_load                       ;3
+    ;
+
+    ;Return
+    ret 
+;
+
+
+
+; Updates the screen with tiles from buffer.
+; Updates a row at the given coordinates.
+; Assumes VRAM access.
+;
+; Input:
+; - `b`: Worldspace X-position
+; - `c`: Worldspace Y-position
+;
+; Destroys: all
+dwellings_map_update_horizontal::
+    
     ;Set up a map pointer
     ;Vertically (*32)
     ld h, 0
@@ -179,65 +221,71 @@ dwellings_map_update_vertical::
     ld l, a
 
     ;Add VRAM tilemap offset
-    ld a, $98
+    ld a, high(_SCRN0)
     adc a, h
     ld h, a
 
-    ;Prepare that one area in HRAM
-    ld a, $C3 ;jp $XXXX
-    ldh [h_temp_tile], a
+    ld de, w_screen_update_buffer
 
-    ;Load 11 blocks = 44 tiles
-    ld b, 11
-    .tile_load
+    ;Copy upper tiles
+    ld c, l ;Save for later
+    REPT 12
+        ld a, [de]
+        inc e
+        ld [hl+], a
+        ld a, [de]
+        inc e
+        ld [hl+], a
+        res 5, l
+    ENDR
 
-        ;Get tile ID and store it in A
-        ld a, [de]                              ;2
+    ;Copy lower tiles in reverse
+    set 5, l
+    dec l
+    set 5, l
+    ld b, l ;Save for later
+    set 5, e
+    REPT 12
+        dec e
+        ld a, [de]
+        ld [hl-], a
+        dec e
+        ld a, [de]
+        ld [hl-], a
+        set 5, l
+    ENDR
 
-        ;Multiply this value by 3 (20-22)
-        ld c, a                                 ;1
-        ld [hl], high(dwellings_tiletable)      ;3
-        add a, c                                ;1
-        jr nc, :+                               ;2/3
-        inc [hl]                                ;3
-        :
-        add a, c                                ;1
-        jr nc, :+                               ;2/3
-        inc [hl]                                ;3
-        :
-        ldh [h_temp_tile+1], a                  ;3
-        ld a, [hl]                              ;2
-        ldh [h_temp_tile+2], a                  ;3
-        
-        ;Call tilehandler
-        call h_temp_tile                        ;6 - 4
+    ;Copy upper palettes
+    ld a, 1
+    ldh [rVBK], a
+    ld e, low(w_screen_update_buffer_pal)
+    ld l, c ;Restored from earlier
+    REPT 12
+        ld a, [de]
+        inc e
+        ld [hl+], a
+        ld a, [de]
+        inc e
+        ld [hl+], a
+        res 5, l
+    ENDR
 
+    ;Copy lower palettes in reverse
+    ld l, b
+    set 5, e
+    REPT 12
+        dec e
+        ld a, [de]
+        ld [hl-], a
+        dec e
+        ld a, [de]
+        ld [hl-], a
+        set 5, l
+    ENDR
 
-
-        ;Now at the end of the loop
-        ;increment level pointer
-        ld a, e                                 ;1
-        add a, 64                               ;2
-        ld e, a                                 ;1
-        jr nc, :+                               ;2
-        inc d                                   ;1
-        :
-
-        ;Increment map pointer
-        ld a, l                                 ;1
-        add a, 63                               ;2
-        ld l, a                                 ;1
-        jr nc, :+                               ;2
-        inc h                                   ;1
-        :
-
-        ;Wrap around vertically
-        res 2, h                                ;2
-        
-        ;End of loop, test counter
-        dec b                                   ;1
-        jr nz, .tile_load                       ;3
-    ;
+    ;Reset VRAM bank
+    xor a
+    ldh [rVBK], a
 
     ;Return
     ret 
@@ -245,12 +293,135 @@ dwellings_map_update_vertical::
 
 
 
-; Updates the screen with tiles.
-; Updates a row at the given coordinates.
+; Updates the screen with tiles from buffer.
+; Updates a column at given coordinates.
+; Assumes VRAM access.
 ;
 ; Input:
 ; - `b`: Worldspace X-position
 ; - `c`: Worldspace Y-position
+;
+; Destroys: all
+dwellings_map_update_vertical::
+    
+    ;Set up a map pointer
+    ;Vertically (*32)
+    ld h, 0
+    ld a, c
+    add a, a
+    and a, %00011111
+    ld l, a
+    add hl, hl
+    add hl, hl
+    add hl, hl
+    add hl, hl
+    add hl, hl
+
+    ;Horizontally (+)
+    ld a, b
+    add a, a
+    and a, %00011111
+    add a, l
+    ld l, a
+
+    ;Add VRAM tilemap offset
+    ld a, high(_SCRN0)
+    adc a, h
+    ld h, a
+
+    ld de, w_screen_update_buffer
+
+    ;Copy tiles (upper and lower)
+    ld b, 32 ;Small optimization
+    push hl
+    REPT 11
+        
+        ;Upper
+        ld a, [de]
+        ld [hl+], a
+        inc e
+        ld a, [de]
+        ld [hl-], a
+        dec e
+
+        ;Lower
+        set 5, l
+        set 5, e
+        ld a, [de]
+        ld [hl+], a
+        inc e
+        ld a, [de]
+        ld [hl-], a
+        inc e
+
+        ;Prepare for next row
+        res 5, e
+        ld a, l
+        add a, b
+        ld l, a
+        jr nc, :+
+            inc h
+        :
+
+        ;Wrap around vertically
+        res 2, h
+    ENDR
+
+    ;Switch to palettes
+    pop hl
+    ld e, low(w_screen_update_buffer_pal)
+    ld a, 1
+    ldh [rVBK], a
+
+    ;Copy palettes (upper and lower)
+    REPT 11
+        
+        ;Upper
+        ld a, [de]
+        ld [hl+], a
+        inc e
+        ld a, [de]
+        ld [hl-], a
+        dec e
+
+        ;Lower
+        set 5, l
+        set 5, e
+        ld a, [de]
+        ld [hl+], a
+        inc e
+        ld a, [de]
+        ld [hl-], a
+        inc e
+
+        ;Prepare for next row
+        res 5, e
+        ld a, l
+        add a, b
+        ld l, a
+        jr nc, :+
+            inc h
+        :
+
+        ;Wrap around vertically
+        res 2, h
+    ENDR
+
+    ;Switch back to tiles
+    xor a
+    ldh [rVBK], a
+
+    ;Do that again but with palettes this time
+    ;Return
+    ret 
+;
+
+
+
+; Updates the screen with tiles.
+; Updates tiles anywhere.
+; Assumes VRAM access.
+;
 ;
 ; Destroys: all
 dwellings_map_update_list::
@@ -276,7 +447,8 @@ dwellings_map_update_list::
         ld a, [bc]
         ld d, a
         dec c
-
+        
+        ;Decrement list element count
         ld c, low(w_screen_update_list_head)
         ld a, [bc]
         dec a
@@ -286,7 +458,32 @@ dwellings_map_update_list::
         jr z, .done
         dec b
 
-        ;Turn this into VRAM pointer
+        ;Pointer to buffer
+        ld hl, w_screen_update_buffer
+
+        ;Multiply this value by 3
+        ld a, [w_level_tiletable]               ;4
+        ld [hl], a                              ;2
+
+        ;Tile ID -> A+C
+        ld a, [de]                              ;2
+        ld c, a                                 ;1
+        add a, c                                ;1
+        jr nc, :+                               ;2/3
+            inc [hl]                                ;3
+        :
+        add a, c                                ;1
+        jr nc, :+                               ;2/3
+            inc [hl]                                ;3
+        :
+        ldh [h_temp_tile+1], a                  ;3
+        ld a, [hl]                              ;2
+        ldh [h_temp_tile+2], a                  ;3
+        
+        ;Call tilehandler
+        call h_temp_tile                        ;6 - 4
+
+        ;Turn DE this into VRAM pointer in HL
         ld a, d
         and a, %00000011
         rra 
@@ -302,33 +499,54 @@ dwellings_map_update_list::
         add a, l
         ld l, a
         ld a, h
-        adc a, $98
+        adc a, high(_SCRN0)
         ld h, a
-    
-        ;Get tile ID and store it in A
-        ld a, [de]
 
-        ;Multiply this value by 3 (19-21)
-        ld c, a                                 ;1
-        ld [hl], high(dwellings_tiletable)      ;3
-        add a, c                                ;1
-        jr nc, :+                               ;2/3
-        inc [hl]                                ;3
-        :
-        add a, c                                ;1
-        jr nc, :+                               ;2/3
-        inc [hl]                                ;3
-        :
-        ldh [h_temp_tile+1], a                  ;3
-        ld a, [hl]                              ;2
-        ldh [h_temp_tile+2], a                  ;3
-        
-        ;Call tilehandler
-        call h_temp_tile                        ;6 - 4
+        ;Copy tile from buffer to VRAM
+        ld de, w_screen_update_buffer
+        ld a, [de]
+        ld [hl+], a
+        inc e
+        ld a, [de]
+        ld [hl-], a
+        dec e
+        set 5, e
+        set 5, l
+        ld a, [de]
+        ld [hl+], a
+        inc e
+        ld a, [de]
+        ld [hl-], a
+        dec e
+
+        ;Switch to palettes
+        ld a, 1
+        ldh [rVBK], a
+
+        ;Load palettes
+        set 6, e
+        ld a, [de]
+        ld [hl+], a
+        inc e
+        ld a, [de]
+        ld [hl-], a
+        dec e
+        res 5, e
+        res 5, l
+        ld a, [de]
+        ld [hl+], a
+        inc e
+        ld a, [de]
+        ld [hl-], a
+        dec e
+
+        ;Switch to tiles
+        xor a
+        ldh [rVBK], a
         
         ;Now at the end of loop, check rLY
         ldh a, [rLY]
-        cp a, $98
+        cp a, high(_SCRN0)
         jr c, .tile_load
     ;
 

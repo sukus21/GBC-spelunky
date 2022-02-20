@@ -9,8 +9,7 @@ MACRO tm_floor_experimental
     
     ;Palettes               =21
     ;Switch VRAM bank
-    ld a, 1                 ;2
-    ldh [rVBK], a           ;3
+    set 6, l                ;2
 
     ;Place palette data
     ld a, \2                ;2
@@ -21,8 +20,7 @@ MACRO tm_floor_experimental
     ld [hl-], a             ;2
 
     ;Reset VRAM bank
-    xor a                   ;1
-    ldh [rVBK], a           ;3
+    res 6, l                ;2
 
 
 
@@ -165,8 +163,7 @@ MACRO tm_floor
     
     ;Palettes               =21
     ;Switch VRAM bank
-    ld a, 1                 ;2
-    ldh [rVBK], a           ;3
+    set 6, l                ;2
 
     ;Place palette data
     ld a, \2                ;2
@@ -177,8 +174,7 @@ MACRO tm_floor
     ld [hl-], a             ;2
 
     ;Reset VRAM bank
-    xor a                   ;1
-    ldh [rVBK], a           ;3
+    res 6, l                ;2
 
 
 

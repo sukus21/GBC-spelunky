@@ -103,7 +103,7 @@ main:
     ;Fetch update enable
     ld a, [w_screen_update_enable]
     bit camb_update, a
-    jr z, :+
+    jr z, .nostrip
 
         ;Should it be updated horizontally or vertically?
         bit camb_vertical, a
@@ -120,17 +120,17 @@ main:
         ld a, [w_layer_bank]
         ldh [rSVBK], a
 
-        ;Call update functions
-        push af
-        call z, dwellings_map_update_vertical
-        pop af
-        call nz, dwellings_map_update_horizontal
-        jr .dma
-    :
+        ;Call an update function
+        jr nz, :+
+            call dwellings_map_update_vertical
+            jr .dma
+        :
+            call dwellings_map_update_horizontal
+    .nostrip
 
     ;Update blocks from the updatelist instead
     bit camb_update_list, a
-    jr z, :+
+    jr z, .nolist
 
         ;There are items to be updated in the list
         ld a, [w_world_bank]
@@ -139,7 +139,7 @@ main:
         ldh [rSVBK], a
         call dwellings_map_update_list
         jr .dma
-    :
+    .nolist
 
     ;Update colors?
     ldh a, [h_input_pressed]
@@ -194,10 +194,41 @@ main:
     ;Execute entity code
     call w_entsys_execute
 
-    ;Increment timer
+    ;Increment level timer
     call hud_update_timer
     
+    ;Remove all unused sprites
     call sprite_finish
+
+    
+    ;Update tile buffer?
+    ld a, [w_screen_update_enable]
+    bit camb_update, a
+    jr z, .nobufferupdate
+
+        ;Should it be updated horizontally or vertically?
+        bit camb_vertical, a ;sets Z flag for later
+
+        ;Fetch camera update coordinates
+        ld hl, w_cam_update_x
+        ld a, [hl+]
+        ld c, [hl]
+        ld b, a
+
+        ;Switch to world ROMX bank and level WRAMX bank
+        ld a, [w_world_bank]
+        ld [rROMB0], a
+        ld a, [w_layer_bank]
+        ldh [rSVBK], a
+
+        ;Call an update function
+        jr nz, :+
+            call dwellings_map_buffer_vertical
+            jr .nobufferupdate
+        :
+            call dwellings_map_buffer_horizontal
+    .nobufferupdate
+
 
     ;Go back to the start
     jp main

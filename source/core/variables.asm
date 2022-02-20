@@ -67,6 +67,11 @@ var_data_w0:
         w_oam_mirror:: ds $100, $00
         ASSERT low(w_oam_mirror) == 0
 
+        ;Screen update buffer
+        w_screen_update_buffer:: ds $40, $00
+        w_screen_update_buffer_pal:: ds $40, $00
+        ASSERT low(w_screen_update_buffer) == 0
+
         ;Global variables
         w_globals::
         w_world_bank:: db bank_dwellings_main
@@ -89,6 +94,7 @@ var_data_w0:
         w_level_height_chunks:: db $04
         w_level_entrance_x:: db $00
         w_level_entrance_y:: db $00
+        w_level_tiletable:: db $00
         w_chunk_id:: db $00
         w_chunk_x:: db $00
         w_chunk_y:: db $00

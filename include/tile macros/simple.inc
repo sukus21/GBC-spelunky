@@ -18,16 +18,14 @@ MACRO tm_simple
     ld [hl-], a
 
     ;Load palettes
-    ld a, 1
-    ldh [rVBK], a
+    set 6, l
     ld a, \2
     ld [hl+], a
     ld [hl-], a
     res 5, l
     ld [hl+], a
     ld [hl], a
-    xor a
-    ldh [rVBK], a
+    res 6, l
 ENDM
 
 
@@ -45,8 +43,7 @@ MACRO tm_simple_h
     ld [hl], c
     
     ;Load palette 1
-    ld a, 1
-    ldh [rVBK], a
+    set 6, l
     ld a, \2
     ld [hl+], a
 
@@ -57,7 +54,6 @@ MACRO tm_simple_h
     ld [hl], a
 
     ;Load tile 2
-    xor a
-    ldh [rVBK], a
+    res 6, l
     ld [hl], c
 ENDM

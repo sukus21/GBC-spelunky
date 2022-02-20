@@ -88,8 +88,7 @@ MACRO tile_macro_floor_top
     ld [hl], e
 
     ;Place palette 1
-    ld a, 1
-    ldh [rVBK], a
+    set 6, l
     ldh a, [h_temp]
     ld [hl+], a
 
@@ -136,8 +135,7 @@ MACRO tile_macro_floor_top
     :
 
     ;Place tile 2
-    xor a
-    ldh [rVBK], a
+    res 6, l
     ld [hl], e
 
     ;Return

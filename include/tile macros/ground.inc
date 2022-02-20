@@ -13,8 +13,7 @@ MACRO tm_ground
     ld c, \1+8
     
     ;Load top palettes
-    ld a, 1
-    ldh [rVBK], a
+    set 6, l
     ld a, \2
     ld [hl+], a
     ld [hl-], a
@@ -45,8 +44,7 @@ MACRO tm_ground
 
 
     ;Switch VRAM bank
-    xor a
-    ldh [rVBK], a
+    res 6, l
 
     ;Write tiles 3+4
     ld a, c
@@ -179,8 +177,7 @@ MACRO tile_macro_ground_top
     ld [hl], e
 
     ;Place palette 1
-    ld a, 1
-    ldh [rVBK], a
+    set 6, l
     ldh a, [h_temp]
     ld [hl+], a
 
@@ -211,8 +208,7 @@ MACRO tile_macro_ground_top
     :
 
     ;Place tile 2
-    xor a
-    ldh [rVBK], a
+    res 6, l
     ld [hl], e
 
     ;Return
@@ -281,8 +277,7 @@ MACRO tile_macro_ground_bottom
     ld [hl], e
 
     ;Place palette 1
-    ld a, 1
-    ldh [rVBK], a
+    set 6, l
     ld a, [h_temp]
     ld [hl+], a
 
@@ -313,8 +308,7 @@ MACRO tile_macro_ground_bottom
     :
 
     ;Place tile 2
-    xor a
-    ldh [rVBK], a
+    res 6, l
     ld [hl], e
 
     ;Return

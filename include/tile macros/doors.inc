@@ -11,9 +11,8 @@ INCLUDE "hardware.inc"
 ; - 5: Background palette ID
 MACRO tm_door_left
 
-    ;Place palettes =25
-    ld a, 1         ;2
-    ld [rVBK], a    ;3
+    ;Place palettes =20
+    set 6, l        ;2
     ld a, \5        ;2
     ld [hl], a      ;2
     set 5, l        ;2
@@ -22,26 +21,23 @@ MACRO tm_door_left
     ld [hl], a      ;2
     res 5, l        ;2
     ld [hl-], a     ;2
-    xor a           ;1
-    ld [rVBK], a    ;3
+    res 6, l        ;2
 
     
-    ;Get vertical offset (bit 2-3)
-    ld a, l
-    and a, %01100000
-    swap a
-    rlca 
-    ld c, a
+    ;Add horizontal offset
+    ld a, \4
+    bit 0, e
+    jr z, :+
+        add a, 2
+    :
 
-    ;Add horizontal offset (bit 0-1)
-    ld a, l
-    and a, %00000011
-    add a, c
+    ;Add vertical offset
+    bit 6, e
+    jr z, :+
+        add a, 8
+    :
 
-    ;Add base tile offset
-    add a, \4
-
-    ;Place backgrounds (tile 1 + 3)
+    ;Place backgrounds (tile 0 + 2)
     ld [hl], a
     set 5, l
     add a, 4
@@ -94,9 +90,8 @@ ENDM
 ; - 5: Background palette ID
 MACRO tm_door_right
 
-    ;Place palettes =25
-    ld a, 1         ;2
-    ld [rVBK], a    ;3
+    ;Place palettes =20
+    set 6, l        ;2
     ld a, \2 + OAMF_XFLIP ;2
     ld [hl], a      ;2
     set 5, l        ;2
@@ -105,24 +100,22 @@ MACRO tm_door_right
     ld [hl], a      ;2
     res 5, l        ;2
     ld [hl], a      ;2
-    xor a           ;1
-    ld [rVBK], a    ;3
+    res 6, l        ;2
 
     
-    ;Get vertical offset (bit 2-3)
-    ld a, l
-    and a, %01100000
-    swap a
-    rlca 
-    ld c, a
+    ;Add horizontal offset
+    ld a, \4
+    bit 0, e
+    jr z, :+
+        add a, 2
+    :
 
-    ;Add horizontal offset (bit 0-1)
-    ld a, l
-    and a, %00000011
-    add a, c
-
-    ;Add base tile offset
-    add a, \4
+    ;Add vertical offset
+    bit 6, e
+    jr z, :+
+        add a, 8
+    :
+    inc a
 
     ;Place backgrounds (tile 1 + 3)
     ld [hl], a
@@ -178,9 +171,8 @@ ENDM
 ; - 5: Background palette ID
 MACRO tm_door_left_1strip
 
-    ;Place palettes =25
-    ld a, 1         ;2
-    ld [rVBK], a    ;3
+    ;Place palettes =20
+    set 6, l        ;2
     ld a, \5        ;2
     ld [hl], a      ;2
     set 5, l        ;2
@@ -189,8 +181,7 @@ MACRO tm_door_left_1strip
     ld [hl], a      ;2
     res 5, l        ;2
     ld [hl-], a     ;2
-    xor a           ;1
-    ld [rVBK], a    ;3
+    res 6, l        ;2
 
     ;Check tile below
     ld a, e
@@ -248,9 +239,8 @@ ENDM
 ; - 5: Background palette ID
 MACRO tm_door_right_1strip
 
-    ;Place palettes =25
-    ld a, 1         ;2
-    ld [rVBK], a    ;3
+    ;Place palettes =20
+    set 6, l        ;2
     ld a, \2 + OAMF_XFLIP ;2
     ld [hl], a      ;2
     set 5, l        ;2
@@ -259,8 +249,7 @@ MACRO tm_door_right_1strip
     ld [hl], a      ;2
     res 5, l        ;2
     ld [hl], a      ;2
-    xor a           ;1
-    ld [rVBK], a    ;3
+    res 6, l        ;2
 
     ;Check tile below
     ld a, e
@@ -322,9 +311,8 @@ ENDM
 ; - 5: Background palette ID
 MACRO tm_door_left_duplicate
 
-    ;Place palettes =25
-    ld a, 1         ;2
-    ld [rVBK], a    ;3
+    ;Place palettes =20
+    set 6, l        ;2
     ld a, \5        ;2
     ld [hl], a      ;2
     set 5, l        ;2
@@ -333,8 +321,7 @@ MACRO tm_door_left_duplicate
     ld [hl], a      ;2
     res 5, l        ;2
     ld [hl-], a     ;2
-    xor a           ;1
-    ld [rVBK], a    ;3
+    res 6, l        ;2
 
     ;Check tile below
     ld a, e
@@ -392,19 +379,17 @@ ENDM
 ; - 5: Background palette ID
 MACRO tm_door_right_duplicate
 
-    ;Place palettes =25
-    ld a, 1         ;2
-    ld [rVBK], a    ;3
-    ld a, \2 + OAMF_XFLIP ;2
+    ;Place palettes =20
+    set 6, l        ;2
+    ld a, \5        ;2
     ld [hl], a      ;2
     set 5, l        ;2
     ld [hl+], a     ;2
-    ld a, \5        ;2
+    ld a, \2        ;2
     ld [hl], a      ;2
     res 5, l        ;2
-    ld [hl], a      ;2
-    xor a           ;1
-    ld [rVBK], a    ;3
+    ld [hl-], a     ;2
+    res 6, l        ;2
 
     ;Check tile below
     ld a, e
@@ -481,8 +466,7 @@ MACRO tm_door_blockade
 
         ;This tile is a top tile
         ;Place palettes
-        ld a, 1
-        ldh [rVBK], a
+        set 6, l
         ld a, \2
         ld [hl+], a
         add a, OAMF_XFLIP
@@ -491,8 +475,7 @@ MACRO tm_door_blockade
         ld a, \5
         ld [hl-], a
         ld [hl], a
-        xor a
-        ld [rVBK], a
+        res 6, l
 
         ;Place blockade tiles
         ld a, \4
@@ -513,16 +496,14 @@ MACRO tm_door_blockade
     :
         ;This tile is a bottom tile
         ;Place palettes
-        ld a, 1
-        ldh [rVBK], a
+        set 6, l
         ld a, \5
         ld [hl+], a
         ld [hl], a
         set 5, l
         ld [hl-], a
         ld [hl+], a
-        xor a
-        ld [rVBK], a
+        res 6, l
 
         ;Place tiles
         ld a, \4+5
@@ -574,8 +555,7 @@ MACRO tm_door_open
 
         ;This tile is a top tile
         ;Place palettes
-        ld a, 1
-        ldh [rVBK], a
+        set 6, l
         ld a, \2
         ld [hl+], a
         add a, OAMF_XFLIP
@@ -584,8 +564,7 @@ MACRO tm_door_open
         ld a, \5
         ld [hl-], a
         ld [hl], a
-        xor a
-        ld [rVBK], a
+        res 6, l
 
         ;Place empty tiles
         ld a, \4
@@ -605,16 +584,14 @@ MACRO tm_door_open
     :
         ;This tile is a bottom tile
         ;Place palettes
-        ld a, 1
-        ldh [rVBK], a
+        set 6, l
         ld a, \5
         ld [hl+], a
         ld [hl], a
         set 5, l
         ld [hl-], a
         ld [hl+], a
-        xor a
-        ld [rVBK], a
+        res 6, l
 
         ;Place tiles
         ld a, \4

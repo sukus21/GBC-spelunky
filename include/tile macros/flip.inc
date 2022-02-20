@@ -20,14 +20,12 @@ MACRO tm_flip
     ld [hl-], a
 
     ;Load palettes
-    ld a, 1
-    ldh [rVBK], a
+    set 6, l
     ld a, \2 | OAMB_XFLIP
     ld [hl+], a
     ld [hl-], a
     res 5, l
     ld [hl+], a
     ld [hl], a
-    xor a
-    ldh [rVBK], a
+    res 6, l
 ENDM

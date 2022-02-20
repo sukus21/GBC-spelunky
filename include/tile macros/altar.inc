@@ -24,16 +24,14 @@ MACRO tm_altar
         ld [hl-], a
 
         ;Load palettes
-        ld a, 1
-        ldh [rVBK], a
+        set 6, l
         ld a, \2
         ld [hl+], a
         ld [hl-], a
         res 5, l
         ld [hl+], a
         ld [hl], a
-        xor a
-        ldh [rVBK], a
+        res 6, l
 
         ;Get away
         jr :++
@@ -52,16 +50,14 @@ MACRO tm_altar
         ld [hl-], a
 
         ;Load palettes
-        ld a, 1
-        ldh [rVBK], a
+        set 6, l
         ld a, \2 | OAMB_XFLIP
         ld [hl+], a
         ld [hl-], a
         res 5, l
         ld [hl+], a
         ld [hl], a
-        xor a
-        ldh [rVBK], a
+        res 6, l
     :
 ENDM
 
@@ -82,8 +78,7 @@ MACRO tile_macro_altar
         ld [hl], e
 
         ;Load palette 1
-        ld a, 1
-        ldh [rVBK], a
+        set 6, l
         ld a, \2
         ld [hl+], a
 
@@ -94,8 +89,7 @@ MACRO tile_macro_altar
         ld [hl], a
 
         ;Load tile 2
-        xor a
-        ldh [rVBK], a
+        res 6, l
         ld [hl], e
 
         ;Return
@@ -108,8 +102,7 @@ MACRO tile_macro_altar
         ld [hl], e
 
         ;Load palette 1
-        ld a, 1
-        ldh [rVBK], a
+        set 6, l
         ld a, \2 + OAMF_XFLIP
         ld [hl+], a
 
@@ -120,8 +113,7 @@ MACRO tile_macro_altar
         ld [hl], a
 
         ;Load tile 2
-        xor a
-        ldh [rVBK], a
+        res 6, l
         ld [hl], e
 
         ;Return

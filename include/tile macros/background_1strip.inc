@@ -35,9 +35,6 @@ MACRO tm_bg1strip
     set 5, l
 
     
-    
-    
-    
     ;Check block below
     ld a, e
     add a, $80
@@ -62,19 +59,15 @@ MACRO tm_bg1strip
     ld [hl-], a
     
 
-
-
     ;Write palettes
-    ld a, 1
-    ldh [rVBK], a
+    set 6, l
     ld a, \2
     ld [hl+], a
     ld [hl-], a
     res 5, l
     ld [hl+], a
     ld [hl], a
-    xor a
-    ldh [rVBK], a
+    res 6, l
     pop de
 
 ENDM

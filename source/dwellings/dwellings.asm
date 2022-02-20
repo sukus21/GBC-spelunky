@@ -112,6 +112,8 @@ dwellings_load::
     ;Set world bank variable
     ld a, bank_dwellings_main
     ld [w_world_bank], a
+    ld a, high(dwellings_tiletable)
+    ld [w_level_tiletable], a
 
     ;Copy blockdata to WRAM0
     ld hl, w_blockdata

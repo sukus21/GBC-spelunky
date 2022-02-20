@@ -34,6 +34,9 @@ setup_complete::
     ;Reset stack and play the intro
     ld sp, w_stack
     call intro
+    ;Falls into `setup_partial`.
+;
+
 
 
 ; Same as `setup_complete`, but skips checking the GBC enable flag.
@@ -161,16 +164,20 @@ setup_partial::
     ;Copy the level to VRAM
     ld a, bank_dwellings_main
     ld [rROMB0], a
-    ld d, $0D
+    ld a, $0D
+    ldh [h_temp6], a
     .maptomem
-    push bc
-    push de
-    call dwellings_map_update_vertical
-    pop de
-    pop bc
-    inc b
-    dec d
-    jr nz, .maptomem
+        push bc
+        call dwellings_map_buffer_vertical
+        pop bc
+        push bc
+        call dwellings_map_update_vertical
+        pop bc
+        inc b
+
+        ld hl, h_temp6
+        dec [hl]
+        jr nz, .maptomem
 
     ;Enable audio
     ld a, $80
@@ -279,16 +286,20 @@ setup_newlevel::
     ;Copy the level to VRAM
     ld a, bank_dwellings_main
     ld [rROMB0], a
-    ld d, $0D
+    ld a, $0D
+    ldh [h_temp6], a
     .maptomem
-    push bc
-    push de
-    call dwellings_map_update_vertical
-    pop de
-    pop bc
-    inc b
-    dec d
-    jr nz, .maptomem
+        push bc
+        call dwellings_map_buffer_vertical
+        pop bc
+        push bc
+        call dwellings_map_update_vertical
+        pop bc
+        inc b
+
+        ld hl, h_temp6
+        dec [hl]
+        jr nz, .maptomem
 
     ;Increment level number
     xor a ;Clears carry flag

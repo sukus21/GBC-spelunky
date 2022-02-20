@@ -14,9 +14,8 @@ MACRO tm_duplicate
     ld [hl+], a
     ld [hl-], a
 
-    ;Switch VRAM bank
-    ld a, 1
-    ld [rVBK], a
+    ;Switch to palettes
+    set 6, l
 
     ;Place palettes
     ld a, \2
@@ -26,9 +25,8 @@ MACRO tm_duplicate
     ld [hl+], a
     ld [hl], a
 
-    ;Reset VRAM bank
-    xor a
-    ldh [rVBK], a
+    ;Switch to tiles
+    res 6, l
 ENDM
 
 
@@ -45,16 +43,14 @@ MACRO tm_duplicate_h
     ld [hl+], a
     ld [hl-], a
 
-    ;Switch VRAM bank
-    ld a, 1
-    ld [rVBK], a
+    ;Switch to palettes
+    set 6, l
 
     ;Place palettes
     ld a, \2
     ld [hl+], a
     ld [hl], a
 
-    ;Reset VRAM bank
-    xor a
-    ldh [rVBK], a
+    ;Switch to tiles
+    res 6, l
 ENDM

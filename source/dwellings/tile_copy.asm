@@ -201,8 +201,7 @@ dwt_unknown:
     ld [hl+], a
 
     ;Write palettes
-    ld a, 1
-    ldh [rVBK], a
+    set 6, l
     ld a, p_boneblock + OAMF_BANK1
     ld [hl-], a
     ld [hl+], a
@@ -210,8 +209,7 @@ dwt_unknown:
     ld a, p_unknown
     ld [hl-], a
     ld [hl+], a
-    xor a
-    ldh [rVBK], a
+    res 6, l
 
     ;Return
     ret

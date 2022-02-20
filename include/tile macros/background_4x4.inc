@@ -5,21 +5,18 @@
 ; - 2: Palette
 MACRO tm_bg4x4
     
-    ;Get vertical offset (bit 2-3)
-    ld a, l
-    and a, %01100000
-    swap a
-    rlca 
-    ld c, a
+    ;Add horizontal offset
+    ld a, \1
+    bit 0, e
+    jr z, :+
+        add a, 2
+    :
 
-    ;Add horizontal offset (bit 0-1)
-    ld a, l
-    and a, %00000011
-    add a, c
-
-    ;Add base tile offset
-    add a, \1
-
+    ;Add vertical offset
+    bit 6, e
+    jr z, :+
+        add a, 8
+    :
 
 
     ;Place tiles
@@ -41,10 +38,8 @@ MACRO tm_bg4x4
 
 
 
-    ;Switch VRAM bank
-    ld c, low(rVBK)
-    ld a, 1
-    ld [c], a
+    ;Switch to palettes
+    set 6, l
 
     ;Apply palettes
     ld a, \2
@@ -57,8 +52,7 @@ MACRO tm_bg4x4
     ld [hl], a
     
     ;Reset VRAM bank
-    xor a
-    ld [c], a
+    res 6, l
 ENDM
 
 
@@ -95,16 +89,14 @@ MACRO tm_bg4x4_h
     inc a
     ld [hl-], a
 
-    ;Switch VRAM bank
-    ld a, 1
-    ldh [rVBK], a
+    ;Switch to palettes
+    set 6, l
 
     ;Place palettes
     ld a, \2
     ld [hl+], a
     ld [hl], a
 
-    ;Switch VRAM bank again
-    xor a
-    ldh [rVBK], a
+    ;Switch back to tiles
+    res 6, l
 ENDM
