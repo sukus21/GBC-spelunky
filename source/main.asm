@@ -1,5 +1,4 @@
 INCLUDE "hardware.inc"
-INCLUDE "header.inc"
 INCLUDE "camera.inc"
 INCLUDE "banks.inc"
 
@@ -51,14 +50,20 @@ SECTION "STAT INTERRUPT", ROM0[$0048]
     ret
 ;
 
-
-
 SECTION "ENTRY POINT", ROM0[$0100]
     
     ;Disable interupts and jump
     v_entry::
     di
     jp setup_complete
+;
+
+SECTION "HEADER", ROM0[$0104]
+
+    ;Space reserved for the header
+    REPT $4C
+        db $00
+    ENDR
 ;
 
 
