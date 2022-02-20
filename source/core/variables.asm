@@ -56,19 +56,16 @@ var_data_w0:
         w_variables:
     
         ;Blockdata
-        w_blockdata::
-        ds $100, $00
+        w_blockdata:: ds $100, $00
 
         ;Tile update queue
         w_screen_update_list_count:: db $00
         w_screen_update_list_head:: db $02
-        w_screen_update_list::
-        ds $FE, $FF
+        w_screen_update_list:: ds $FE, $FF
 
         ;Sprite stuff
-        w_oam_mirror::
+        w_oam_mirror:: ds $100, $00
         ASSERT low(w_oam_mirror) == 0
-        ds $A4, $00
 
         ;Global variables
         w_globals::
