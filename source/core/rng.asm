@@ -32,7 +32,6 @@ rng_run_single::
 ;
 ; Destroys: `f`
 rng_run::
-    
     push hl
 
     ;Initialize RNG pointer
@@ -87,38 +86,4 @@ rng_tick:
     ld a, [hl-]
     xor a, [hl]
     ret
-;
-
-
-
-; Unused, just wanted to test something.
-; Lives in ROM0.
-rngtest::
-
-    ld hl, $D000
-    ld b, $00
-    ld de, $0100
-    call memfill
-
-    ld b, 0
-    ld h, $D0
-    ld de, 0
-
-    .loop
-        inc de
-    
-        call rng_run_single
-        ld l, a
-        ld a, [hl]
-        inc [hl]
-        cp a, 0
-        jr nz, .loop
-
-            dec b
-            jr nz, .loop
-
-
-    .noloop
-    ld b, b
-    jr rngtest
 ;

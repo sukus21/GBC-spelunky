@@ -3,7 +3,6 @@ INCLUDE "hardware.inc"
 SECTION "INPUT", ROM0
 ; Gets the current buttons pressed.
 ; Bits 0-3 = buttons, bits 4-7 = dpad.
-; Lives in ROM0.
 ;
 ; Output:
 ; - `b`: Byte of buttons held
@@ -11,48 +10,48 @@ SECTION "INPUT", ROM0
 ;
 ; Destroys: `af`, `bc`, `d`
 input::
+    
     ;Previous buttons pressed
     ldh a, [h_input]
     ld d, a
 
-;Read the buttons
+    ;Read the buttons
     ;Set up for reading the buttons
     ld c, 0
     ld a, %00100000
-    ld [$FF00+c], a
-    ld [$FF00+c], a
+    ldh [c], a
+    ldh [c], a
     nop 
 
     ;Read the buttons
-    ld a, [$FF00+c]
-    ld a, [$FF00+c]
-    ld a, [$FF00+c]
-    ld a, [$FF00+c]
-    ld a, [$FF00+c]
-    ld a, [$FF00+c]
-    ld a, [$FF00+c]
-    ld a, [$FF00+c]
+    ldh a, [c]
+    ldh a, [c]
+    ldh a, [c]
+    ldh a, [c]
+    ldh a, [c]
+    ldh a, [c]
+    ldh a, [c]
+    ldh a, [c]
     swap a
     and a, %11110000
     ld b, a
-;
 
-;Read the DPAD
+    ;Read the DPAD
     ;Set up for reading the DPAD
     ld a, %00010000
-    ld [$FF00+c], a
-    ld [$FF00+c], a
+    ldh [c], a
+    ldh [c], a
     nop 
 
     ;Read the DPAD
-    ld a, [$FF00+c]
-    ld a, [$FF00+c]
-    ld a, [$FF00+c]
-    ld a, [$FF00+c]
-    ld a, [$FF00+c]
-    ld a, [$FF00+c]
-    ld a, [$FF00+c]
-    ld a, [$FF00+c]
+    ldh a, [c]
+    ldh a, [c]
+    ldh a, [c]
+    ldh a, [c]
+    ldh a, [c]
+    ldh a, [c]
+    ldh a, [c]
+    ldh a, [c]
     and a, %00001111
     or a, b
     cpl
