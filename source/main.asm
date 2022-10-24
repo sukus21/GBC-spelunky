@@ -88,7 +88,7 @@ main:
     ;Wait for Vblank
     halt
 
-    ;Window shenanigans
+    ;Place window on-screen
     ld a, 7
     ldh [rWX], a
     xor a
@@ -100,13 +100,14 @@ main:
     res 1, [hl]
     ei
     
-    ;Fetch update enable
+    ;Fetch screen update enable
     ld a, [w_screen_update_enable]
     bit camb_update, a
     jr z, .nostrip
 
         ;Should it be updated horizontally or vertically?
         bit camb_vertical, a
+        ;FLAGS DO NOT UPDATE UNTIL NEEDED!
 
         ;Fetch camera update coordinates
         ld hl, w_cam_update_x
@@ -144,22 +145,29 @@ main:
     ;Update colors?
     ldh a, [h_input_pressed]
     bit PADB_SELECT, a
-    jr z, .samecolors
+    jr z, .nocolor
 
-        ld hl, dwellings_palettes
+        ;Invert selected palette
         ld a, [w_palette_used]
         cpl 
         ld [w_palette_used], a
+
+        ;What palette to use
         inc a
-        jr z, :+
-            ld hl, w_palette_buffer
+        ld hl, w_palette_buffer
+        jr nz, :+
+
+            ;Switch to Dwellings bank, just in case
+            ld hl, dwellings_palettes
+            ld a, [w_world_bank]
+            ldh [h_bank_number], a
+            ld [rROMB0], a
         :
-        ld a, [w_world_bank]
-        ldh [h_bank_number], a
-        ld [rROMB0], a
+
+        ;Switch palettes
         call palette_copy_all
         jr .dma
-    .samecolors
+    .nocolor
 
     ;I have spare VRAM-time, update HUD
     ldh a, [rLY]

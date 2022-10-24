@@ -27,7 +27,7 @@ setup_complete::
         rst v_error
     :
 
-    ;Set setup variable to 0
+    ;Set setup variable
     ld a, 1
     ldh [h_setup], a
 
