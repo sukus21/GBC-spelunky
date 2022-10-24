@@ -41,10 +41,10 @@ player_main::
 
     ;Decrement invincibility
     ld hl, w_player_invincible
-    ld a, [hl]
-    cp a, 0
+    xor a
+    cp a, [hl]
     jr z, :+
-    dec [hl]
+        dec [hl]
     :
     
     ;Switch RAM bank to active layer
@@ -52,7 +52,6 @@ player_main::
     ldh [rSVBK], a
 
     ;Player state
-    ;call player_animate_walk
     call player_states
 
     ;Horizontal collision handling

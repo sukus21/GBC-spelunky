@@ -11,6 +11,8 @@ SECTION "PLAYER STATES", ROMX, BANK[bank_player]
 ; Handles player states.
 ; Exists in it's own file because I just don't want 
 ; to have a single file with 1000+ lines of code.
+;
+; Destroys: `af`, unknown
 player_states::
     
     ;Do a state machine
@@ -36,13 +38,12 @@ player_states::
 
 
 ; Default state.
-; Platoforming and stuff.
+; Platforming and stuff.
+;
+; Destroys: all
 statecode_default:
     
     ;Grab input and hspp
-    ;HL points to direction
-    ldh a, [h_input]
-    ld b, a
     ld hl, w_player_hspp
     
     ;Is player grounded?
@@ -66,217 +67,14 @@ statecode_default:
         :
             ;Player is moving
             call player_animate_walk
-            ;Falls into label
+            ;Falls into label `.animate_done`.
 
     .animate_done
-    ;Horizontal movement
-    ;Is player not moving?
-    ld a, [hl-]
-    cp a, 0
-    jr nz, .movingH
 
-        ;Player is not moving, set direction according to input
-        bit PADB_LEFT, b
-        jr z, :+
-
-            ;Player is moving left
-            set player_going_left, [hl]
-            set player_facing_left, [hl]
-            jr .inchspp
-        :
-        bit PADB_RIGHT, b
-        jr z, .storehspp
-            
-        ;Player is moving right
-            res player_going_left, [hl]
-            res player_facing_left, [hl]
-            jr .inchspp
-        
-        jr .storehspp
-    ;
-
-    .movingH
-    ;Friction
-    sub a, player_friction
-    jr nc, :+
-        xor a
-    :
-
-    ;Is player moving left?
-    bit player_going_left, [hl]
-    jr z, :+
-        
-        ;Player is moving left
-        set player_facing_left, [hl]
-        bit PADB_LEFT, b
-        jr nz, .inchspp
-        bit PADB_RIGHT, b
-        jr nz, .dechspp
-        jr .storehspp
-    :
-        
-        ;Player is moving right
-        res player_facing_left, [hl]
-        bit PADB_RIGHT, b
-        jr nz, .inchspp
-        bit PADB_LEFT, b
-        jr nz, .dechspp
-        jr .storehspp
-    :
-
-    ;Move faster
-    .inchspp
-        add a, player_accel
-        cp a, player_maxspeed+1
-        jr c, :+
-        ld a, player_maxspeed
-        :
-        jr .storehspp
-    
-    ;Slow down
-    .dechspp
-        sub a, player_accel
-        jr nc, :+
-            xor a
-        :
-        ;Falls into label `.storehspp`.
-
-
-    ;Store hspp
-    .storehspp
-        inc l
-        ld [hl-], a
-    ;
-
-
-    ;Gravity
-    bit player_going_up, [hl]
-    jr z, :+
-
-        ;Player is moving up, subtract speed
-        inc l
-        inc l
-        ld a, [hl]
-        sub a, player_gravity
-        ld [hl], a
-        jr nc, .donegravity
-
-            ;Player is now moving down
-            xor a
-            ld [hl], a
-            dec l
-            dec l
-            res player_going_up, [hl]
-            inc l
-            inc l
-            jr .donegravity
-    :
-        ;Player is moving down, add speed
-        inc l
-        inc l
-        ld a, [hl]
-        add a, player_gravity
-        cp a, player_maxspeed_fall
-        jr c, :+
-            ld a, player_maxspeed_fall
-        :
-        ld [hl], a
-    .donegravity
-
-    ;Jumping
-    ld de, w_player_grounded
-    ld a, [de]
-
-    ;Has player not left the ground yet?
-    cp a, player_jumptimer
-    jr nz, .jumpprogress
-
-        ;Initialize jump
-        ld c, a
-        ldh a, [h_input_pressed]
-        bit PADB_A, a
-        ld a, c
-        jr z, .nojump
-        bit PADB_DOWN, b
-        jr nz, .crawl
-        ld [hl], player_jump_force
-        jr .dojump
-
-        ;Crawl, drop through platform
-        .crawl
-
-            push hl
-            push de
-
-            ;Create pointer to stage data BELOW the player
-            ld l, 0
-            ld a, [w_player_y]
-            inc a
-            rra
-            rr l
-            rra 
-            rr l
-            add a, high(level_foreground)
-            ld h, a
-            ld a, [w_player_x]
-            add a, l
-            ld l, a
-
-            ;Is this a platform?
-            ld d, high(w_blockdata)
-            ld e, [hl]
-            ld a, [de]
-            bit bpb_solid, a
-            jr nz, .dropthrough_end
-
-            ;This is a platform, check for tile overlap
-            ld a, [w_player_x+1]
-            add a, player_width
-            jr nc, .dropthrough_go
-            inc l
-            ld e, [hl]
-            ld a, [de]
-            bit bpb_solid, a
-            jr nz, .dropthrough_end
-
-            ;Platform secured
-            .dropthrough_go
-                ld hl, w_player_y+1
-                inc [hl]
-
-            ;Return from this nonsense
-            .dropthrough_end
-                pop de
-                pop hl
-                jr .nojump
-
-
-    .jumpprogress
-    bit PADB_A, b
-    jr z, .nojump
-
-        ;The funny jump button was pressed
-        .dojump
-        dec a
-        jr z, .nojump
-
-            ;Player is grounded
-            ;Remove gravity
-            ld [de], a
-            ld a, [hl]
-            add a, player_gravity
-            ld [hl], a
-            dec l
-            dec l
-            set player_going_up, [hl]
-            jr .postjump
-
-
-    .nojump
-    ;Set grounded variable to 0
-    ld a, 1
-    ld [de], a
-    .postjump
+    ;Schmoovement
+    call player_common_hmove
+    call player_common_gravity
+    call player_common_jump
 
     ;Whip
     ldh a, [h_input_pressed]
@@ -496,21 +294,22 @@ statecode_whip:
         ld hl, w_entsys_collision+1
         ld b, 63
         :
-
             ;Reset whip-states
             dec l
             ld a, [hl+]
             cp a, _ldan8
             jr nz, :+
-            res entsys_col_whipB, [hl]
+                res entsys_col_whipB, [hl]
             :
             add hl, de
             dec b
             jr nz, :--
         
+        ;Switch WRAMX back to level
         ld a, bank_foreground
         ldh [rSVBK], a
         
+        ;Perform default state code
         jp statecode_default
     .notzero
 
@@ -525,18 +324,12 @@ statecode_whip:
     cp a, player_whip_timer-6
     jr c, .animate
     dec b
-    cp a, player_whip_timer-3
-    jr c, .animate
-    dec b
-    cp a, player_whip_timer-1
-    jr c, .animate
-    dec b
 
     ;Play the frame
     .animate
     call player_animate_frame
 
-    ;If timer is a certain number, change whip state
+    ;Change whip state
     cp a, player_whip_timer-10
     jr nz, :+
         ld l, low(w_player_direction)
@@ -544,216 +337,25 @@ statecode_whip:
     :
 
 
-    ;Grab input and hspp
-    ;HL points to direction
-    ldh a, [h_input]
-    ld b, a
-    ld hl, w_player_hspp
+    ;Save direction
+    ld hl, w_player_direction
+    ld a, [hl+]
+    and a, 1 << player_facing_left
+    push af
 
-    ;Horizontal movement
-    ;Is player not moving?
-    ld a, [hl-]
-    cp a, 0
-    jr nz, .movingH
+    ;Physics
+    call player_common_hmove
 
-        ;Player is not moving, set direction according to input
-        bit PADB_LEFT, b
-        jr z, :+
+    ;Restore facing direction
+    ld a, [hl]
+    and a, ~(1 << player_facing_left)
+    pop de
+    or a, d
+    ld [hl], a
 
-            ;Player is moving left
-            set player_going_left, [hl]
-            jr .inchspp
-        :
-        bit PADB_RIGHT, b
-        jr z, .storehspp
-            
-        ;Player is moving right
-            res player_going_left, [hl]
-            jr .inchspp
-        
-        jr .storehspp
-    ;
-
-    .movingH
-    ;Friction
-    sub a, player_friction
-    jr nc, :+
-        xor a
-    :
-
-    ;Is player moving left?
-    bit player_going_left, [hl]
-    jr z, :+
-        
-        ;Player is moving left
-        bit PADB_LEFT, b
-        jr nz, .inchspp
-        bit PADB_RIGHT, b
-        jr nz, .dechspp
-        jr .storehspp
-    :
-        
-        ;Player is moving right
-        bit PADB_RIGHT, b
-        jr nz, .inchspp
-        bit PADB_LEFT, b
-        jr nz, .dechspp
-        jr .storehspp
-    :
-
-    ;Move faster
-    .inchspp
-        add a, player_accel
-        cp a, player_maxspeed+1
-        jr c, :+
-        ld a, player_maxspeed
-        :
-        jr .storehspp
-    
-    ;Slow down
-    .dechspp
-        sub a, player_accel
-        jr nc, :+
-            xor a
-        :
-        jr .storehspp
-
-
-    ;Store hspp
-    .storehspp
-        inc l
-        ld [hl-], a
-    ;
-
-
-    ;Gravity
-    bit player_going_up, [hl]
-    jr z, :+
-
-        ;Player is moving up, subtract speed
-        inc l
-        inc l
-        ld a, [hl]
-        sub a, player_gravity
-        ld [hl], a
-        jr nc, .donegravity
-
-            ;Player is now moving down
-            xor a
-            ld [hl], a
-            dec l
-            dec l
-            res player_going_up, [hl]
-            inc l
-            inc l
-            jr .donegravity
-    :
-        ;Player is moving down, add speed
-        inc l
-        inc l
-        ld a, [hl]
-        add a, player_gravity
-        cp a, player_maxspeed_fall
-        jr c, :+
-            ld a, player_maxspeed_fall
-        :
-        ld [hl], a
-    .donegravity
-
-    ;Jumping
-    ld de, w_player_grounded
-    ld a, [de]
-
-    ;Has player not left the ground yet?
-    cp a, player_jumptimer
-    jr nz, .jumpprogress
-
-        ;Initialize jump
-        ld c, a
-        ldh a, [h_input_pressed]
-        bit PADB_A, a
-        ld a, c
-        jr z, .nojump
-        bit PADB_DOWN, b
-        jr nz, .crawl
-        ld [hl], player_jump_force
-        jr .dojump
-
-        ;Crawl, drop through platform
-        .crawl
-
-            push hl
-            push de
-
-            ;Create pointer to stage data BELOW the player
-            ld l, 0
-            ld a, [w_player_y]
-            inc a
-            rra
-            rr l
-            rra 
-            rr l
-            add a, high(level_foreground)
-            ld h, a
-            ld a, [w_player_x]
-            add a, l
-            ld l, a
-
-            ;Is this a platform?
-            ld d, high(w_blockdata)
-            ld e, [hl]
-            ld a, [de]
-            bit bpb_solid, a
-            jr nz, .dropthrough_end
-
-            ;This is a platform, check for tile overlap
-            ld a, [w_player_x+1]
-            add a, player_width
-            jr nc, .dropthrough_go
-            inc l
-            ld e, [hl]
-            ld a, [de]
-            bit bpb_solid, a
-            jr nz, .dropthrough_end
-
-            ;Platform secured
-            .dropthrough_go
-                ld hl, w_player_y+1
-                inc [hl]
-
-            ;Return from this nonsense
-            .dropthrough_end
-                pop de
-                pop hl
-                jr .nojump
-
-
-    .jumpprogress
-    bit PADB_A, b
-    jr z, .nojump
-
-        ;The jump button was pressed
-        .dojump
-        dec a
-        jr z, .nojump
-
-            ;Player is grounded
-            ;Set VSPP to jump speed
-            ld [de], a
-            ld a, [hl]
-            add a, player_gravity
-            ld [hl], a
-            dec l
-            dec l
-            set player_going_up, [hl]
-            jr .jumping_post
-
-
-    .nojump
-    ;Set grounded variable to 0
-    ld a, 1
-    ld [de], a
-    .jumping_post
+    ;Other movement
+    call player_common_gravity
+    call player_common_jump
 
     ;Check for whip collision with destructible tiles
     ;Grab player location
@@ -1248,38 +850,7 @@ statecode_stunned:
     
     ;Gravity
     ld hl, w_player_direction
-    bit player_going_up, [hl]
-    jr z, :+
-
-        ;Player is moving up, subtract speed
-        inc l
-        inc l
-        ld a, [hl]
-        sub a, player_gravity
-        ld [hl], a
-        jr nc, .donegravity
-
-            ;Player is now moving down
-            xor a
-            ld [hl], a
-            dec l
-            dec l
-            res player_going_up, [hl]
-            inc l
-            inc l
-            jr .donegravity
-    :
-        ;Player is moving down, add speed
-        inc l
-        inc l
-        ld a, [hl]
-        add a, player_gravity
-        cp a, player_maxspeed_fall
-        jr c, :+
-            ld a, player_maxspeed_fall
-        :
-        ld [hl], a
-    .donegravity
+    call player_common_gravity
 
     ;Slowly subtract hspeed
     ld l, low(w_player_hspp)
