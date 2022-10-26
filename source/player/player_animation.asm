@@ -134,7 +134,7 @@ player_animate_hang::
     push af
     push hl
     
-    ;Transfer idle frame through HDMA
+    ;Transfer frame through HDMA
     ld hl, rHDMA1
     ld a, high(player_sprite + panima_hanging)
     ld [hl+], a

@@ -56,6 +56,7 @@ player_main::
 
     ;Horizontal collision handling
     .horizontal
+        
         ;Grab player X-position to BC
         ld hl, w_player_x
         ld a, [hl+]
@@ -97,21 +98,9 @@ player_main::
 
         ;Push this X-position and pointer to player data
         push bc
-        push hl
 
         ;Turn this into a pointer to stage data in HL
-        xor a ;Resets carry flag
-        ld c, a
-        rr d
-        rr c
-        rr d
-        rr c
-        ld a, b
-        add a, c
-        ld l, a
-        ld a, d
-        add a, high(level_foreground)
-        ld h, a
+        coordinates_level b, d, h, l
 
         ;Is this block solid?
         ld c, [hl]
@@ -140,6 +129,7 @@ player_main::
 
                 ;No collision
                 jr .add_hspp
+            ;
         ;
 
 
@@ -148,7 +138,7 @@ player_main::
 
             ;Set speed to 0
             ld a, l
-            pop hl
+            ld hl, w_player_hspp
             ld [hl], 0
 
             ;Get direction
@@ -200,15 +190,16 @@ player_main::
 
                 ;Jump
                 jr .vertical
+            ;
         ;
 
         ;Add hspp to player X-position
         .add_hspp
             
-        ;Load modified X-position into the WRAM variable
+            ;Load modified X-position into the WRAM variable
         
             ;Retrieve pointer and X-position itself from stack
-            pop hl
+            ld hl, w_player_hspp
             pop bc
 
             ;Move pointer to X-position

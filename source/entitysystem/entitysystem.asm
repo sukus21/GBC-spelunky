@@ -1985,7 +1985,7 @@ entsys_gravity::
 
     ;Check direction
     ld a, l
-    add a, 5
+    add a, entity_direction - entity_variables
     ld l, a
     bit physics_going_up, [hl]
     jr z, .falling
